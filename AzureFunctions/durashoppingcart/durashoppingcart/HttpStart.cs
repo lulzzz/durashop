@@ -13,8 +13,7 @@ namespace durashoppingcart
     public static class HttpStart
     {
         [FunctionName("HttpStart")]
-        public static async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "orchestration/{functionName}")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClient orchestrationClient, string functionName, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "orchestration/{functionName}")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClient orchestrationClient, string functionName, TraceWriter log)
         {
             dynamic eventData = await req.Content.ReadAsAsync<object>();
             string instanceId = await orchestrationClient.StartNewAsync(functionName, eventData);

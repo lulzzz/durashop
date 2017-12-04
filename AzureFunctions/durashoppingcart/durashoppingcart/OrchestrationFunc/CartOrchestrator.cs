@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace durashoppingcart
 {
-    public class CartContent
+    public class CartOrchestrator
     {
-        [FunctionName("CartContent")]
+        [FunctionName("CartOrchestrator")]
         public static async Task<List<CartEventData>> Run([OrchestrationTrigger]DurableOrchestrationContext context, TraceWriter log)
         {
             var cartList = context.GetInput<List<CartEventData>>() ?? new List<CartEventData>();
