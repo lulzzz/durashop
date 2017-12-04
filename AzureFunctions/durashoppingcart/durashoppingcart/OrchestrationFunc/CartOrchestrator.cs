@@ -18,9 +18,10 @@ namespace durashoppingcart
 
             var addItemTask = context.WaitForExternalEvent<CartEventData>(CartEvents.AddItem);
             var removeItemTask = context.WaitForExternalEvent<CartEventData>(CartEvents.RemoveItem);
+            var clearCartTask = context.WaitForExternalEvent<bool>(CartEvents.ClearCart);
             var isCompletedTask = context.WaitForExternalEvent<bool>(CartEvents.IsCompleted);
 
-            var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask);
+            var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask, clearCartTask);
 
             if (resultingEvent == addItemTask)
             {
@@ -31,6 +32,11 @@ namespace durashoppingcart
             {
                 cartList.Remove(removeItemTask.Result);
                 log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
+            }
+            else if (resultingEvent == clearCartTask)
+            {
+                cartList.Clear();
+                log.Info($"Shopping Cart cleared.");
             }
 
             if (resultingEvent == isCompletedTask && isCompletedTask.Result)
