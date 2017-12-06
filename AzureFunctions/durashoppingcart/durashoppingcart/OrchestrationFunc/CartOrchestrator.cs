@@ -4,8 +4,6 @@ using Microsoft.Azure.WebJobs.Host;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +16,7 @@ namespace durashoppingcart
         {
             var cartList = context.GetInput<List<CartData>>() ?? new List<CartData>();
             var cts = new CancellationTokenSource();
-            DateTime deadline = context.CurrentUtcDateTime.Add(TimeSpan.FromMinutes(Convert.ToDouble(ConfigurationManager.AppSettings["notifiertimeout-min"])));
+            var deadline = context.CurrentUtcDateTime.Add(TimeSpan.FromMinutes(Convert.ToDouble(ConfigurationManager.AppSettings["notifiertimeout-min"])));
 
             var notifyTask = context.CreateTimer(deadline, cts.Token);
             var addItemTask = context.WaitForExternalEvent<CartData>(CartEvents.AddItem);
@@ -56,6 +54,7 @@ namespace durashoppingcart
                 {
                     cts.Cancel();
                 }
+
                 log.Info("Completed updating the Shopping Cart.");
             }
             else

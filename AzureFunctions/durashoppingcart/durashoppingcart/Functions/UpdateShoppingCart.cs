@@ -2,12 +2,8 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace durashoppingcart.Functions
@@ -19,7 +15,7 @@ namespace durashoppingcart.Functions
         {
             var eventData = await req.Content.ReadAsAsync<CartData>();
 
-            string eventName = req.Method == HttpMethod.Delete ? CartEvents.RemoveItem : CartEvents.AddItem;
+            var eventName = req.Method == HttpMethod.Delete ? CartEvents.RemoveItem : CartEvents.AddItem;
 
             await orchestrationClient.RaiseEventAsync(eventData.OrchestrationInstanceId, eventName, eventData);
 
