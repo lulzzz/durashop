@@ -41,7 +41,7 @@ namespace durashoppingcart
             else if (resultingEvent == clearCartTask)
             {
                 cartList.Clear();
-                log.Info($"Shopping Cart cleared.");
+                log.Info($"Shopping Cart cleared."); // just terminate instead ?
             }
 
             else if (resultingEvent == notifyTask)
@@ -52,7 +52,7 @@ namespace durashoppingcart
 
             if (resultingEvent == isCompletedTask)
             {
-                if(notifyTask.Status == TaskStatus.Running)
+                if (notifyTask.Status == TaskStatus.Running)
                 {
                     cts.Cancel();
                 }

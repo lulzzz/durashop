@@ -13,5 +13,7 @@ namespace durashoppingcart.Models
         public string ItemName { get; set; }
 
         public string ItemId { get; set; }
+
+        public Double Price { get; set; }
     }
 }
