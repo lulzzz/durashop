@@ -10,8 +10,8 @@ Brown Bag project to learn about Azure Durable Functions (kind of Micro Service 
 Clone the repository and examine code. Note that you need to edit configurations in local.settings.json for each Azure Function
 ### Prerequisites
 
-- Account in Twilio for testing the Multi Factor Authentication (SMS codes)
-- Microsoft Azure Storage Emulator (up and running)
+* Account in Twilio for testing the Multi Factor Authentication (SMS codes)
+* Microsoft Azure Storage Emulator (up and running)
 ### Installing
 
 Clone and run
@@ -22,8 +22,8 @@ Deploy to Azure. I prepared empty Function Apps and selected "Publish to Existin
 
 ## Authors
 
-[Robin](https://github.com/RobinNord)
-[Johan](https://github.com/jedjohan)
+* [Robin](https://github.com/RobinNord)
+* [Johan](https://github.com/jedjohan)
 
 ## Acknowledgments
 
