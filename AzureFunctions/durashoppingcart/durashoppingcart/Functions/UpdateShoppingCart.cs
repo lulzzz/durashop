@@ -17,7 +17,7 @@ namespace durashoppingcart.Functions
         [FunctionName("UpdateShoppingCart")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", "delete", Route = "Cart/Update")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClient orchestrationClient, TraceWriter log)
         {
-            var eventData = await req.Content.ReadAsAsync<CartEventData>();
+            var eventData = await req.Content.ReadAsAsync<CartData>();
 
             string eventName = req.Method == HttpMethod.Delete ? CartEvents.RemoveItem : CartEvents.AddItem;
 

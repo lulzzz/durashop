@@ -14,15 +14,15 @@ namespace durashoppingcart
     public class CartOrchestrator
     {
         [FunctionName("CartOrchestrator")]
-        public static async Task<List<CartEventData>> Run([OrchestrationTrigger]DurableOrchestrationContext context, TraceWriter log)
+        public static async Task<List<CartData>> Run([OrchestrationTrigger]DurableOrchestrationContext context, TraceWriter log)
         {
-            var cartList = context.GetInput<List<CartEventData>>() ?? new List<CartEventData>();
+            var cartList = context.GetInput<List<CartData>>() ?? new List<CartData>();
             var cts = new CancellationTokenSource();
             DateTime deadline = context.CurrentUtcDateTime.Add(TimeSpan.FromMinutes(Convert.ToDouble(ConfigurationManager.AppSettings["notifiertimeout-min"])));
 
             var notifyTask = context.CreateTimer(deadline, cts.Token);
-            var addItemTask = context.WaitForExternalEvent<CartEventData>(CartEvents.AddItem);
-            var removeItemTask = context.WaitForExternalEvent<CartEventData>(CartEvents.RemoveItem);
+            var addItemTask = context.WaitForExternalEvent<CartData>(CartEvents.AddItem);
+            var removeItemTask = context.WaitForExternalEvent<CartData>(CartEvents.RemoveItem);
             var clearCartTask = context.WaitForExternalEvent<bool>(CartEvents.ClearCart);
             var isCompletedTask = context.WaitForExternalEvent<CompleteCartEventData>(CartEvents.IsCompleted);
 
