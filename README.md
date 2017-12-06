@@ -1,7 +1,7 @@
 # DuraShop
 
 Brown Bag project to learn about Azure Durable Functions, currently these components are included:
-* DuraShoppingCart7
+* DuraShoppingCart
 * DuraShopMFA
 * SPA Front End
 
