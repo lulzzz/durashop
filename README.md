@@ -1,6 +1,6 @@
 # DuraShop
 
-Brown Bag project to learn about Azure Durable Functions, currently these components are included:
+Brown Bag project to learn about Azure Durable Functions (kind of Micro Service oriented), currently these components are included:
 * DuraShoppingCart - Creates instance (eternal) used to keep a customers Shopping Cart
 * DuraShopMFA - Used for 2 factor authentication with codes in SMS
 * SPA Front End - Emulate a simple e-shop
