@@ -15,7 +15,7 @@ namespace durashoppingcart.Functions
         {
             var eventData = await req.Content.ReadAsAsync<CompleteCartEventData>();
 
-            await orchestrationClient.RaiseEventAsync(eventData.OrchestrationInstanceId, CartEvents.IsCompleted, CartEvents.IsCompleted);
+            await orchestrationClient.RaiseEventAsync(eventData.OrchestrationInstanceId, CartEvents.IsCompleted, eventData);
 
             return req.CreateResponse(HttpStatusCode.OK);
         }
