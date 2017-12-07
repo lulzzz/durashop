@@ -14,6 +14,6 @@ namespace durashoppingcart.Models
 
         public static string IsCompleted => "iscompleted";
 
-        public static string ClearCart => "clearcart";
+        public static string GetItems => "getitems";
     }
 }

@@ -23,10 +23,10 @@ namespace durashoppingcart
             var notifyTask = context.CreateTimer(deadline, cts.Token);
             var addItemTask = context.WaitForExternalEvent<CartData>(CartEvents.AddItem);
             var removeItemTask = context.WaitForExternalEvent<CartData>(CartEvents.RemoveItem);
-            var clearCartTask = context.WaitForExternalEvent<bool>(CartEvents.ClearCart);
+            var getCartItemsTask = context.WaitForExternalEvent<CartData>(CartEvents.GetItems);
             var isCompletedTask = context.WaitForExternalEvent<CompleteCartEventData>(CartEvents.IsCompleted);
 
-            var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask, clearCartTask, notifyTask);
+            var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask, getCartItemsTask, notifyTask);
 
             if (resultingEvent == addItemTask)
             {
@@ -38,10 +38,9 @@ namespace durashoppingcart
                 cartList.Remove(removeItemTask.Result);
                 log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
-            else if (resultingEvent == clearCartTask)
+            else if (resultingEvent == getCartItemsTask)
             {
-                cartList.Clear();
-                log.Info($"Shopping Cart cleared."); // just terminate instead ?
+                log.Info($"Getting Cart Items.");
             }
 
             else if (resultingEvent == notifyTask)
@@ -56,7 +55,7 @@ namespace durashoppingcart
                 {
                     cts.Cancel();
                 }
-                log.Info("Completed updating the Shopping Cart.");
+                log.Info("Completed the Shopping Cart.");
             }
             else
             {

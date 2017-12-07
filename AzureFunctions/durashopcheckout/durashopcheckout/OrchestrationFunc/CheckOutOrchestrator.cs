@@ -30,9 +30,11 @@ namespace durashopcheckout.OrchestrationFunc
         }
 
         [FunctionName("GetCartContent")]
-        public static Task<List<CartData>> GetCartContent([ActivityTrigger] string cartId, TraceWriter log)
+        public static Task<List<CartData>> GetCartContent([ActivityTrigger] string cartId, DurableOrchestrationContext ctx, TraceWriter log)
         {
             log.Info($"Searching for Shopping Cart with OrchestrationInstanceId '{cartId}'...");
+            Task provisionTask = ctx.CallSubOrchestratorAsync("DeviceProvisioningOrchestration", deviceId);
+            //provisioningTasks.Add(provisionTask);
             return null;
         }
 

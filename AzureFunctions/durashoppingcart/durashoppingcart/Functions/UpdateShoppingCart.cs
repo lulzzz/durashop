@@ -21,7 +21,7 @@ namespace durashoppingcart.Functions
 
             string eventName = req.Method == HttpMethod.Delete ? CartEvents.RemoveItem : CartEvents.AddItem;
 
-            await orchestrationClient.RaiseEventAsync(eventData.OrchestrationInstanceId, eventName, eventData);
+            await orchestrationClient.RaiseEventAsync(eventData.CartId, eventName, eventData);
 
             return req.CreateResponse(HttpStatusCode.OK);
         }
