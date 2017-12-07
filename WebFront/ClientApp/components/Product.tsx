@@ -1,9 +1,9 @@
+import PhoneNumber from './PhoneNumber';
 import * as React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as ProductStore from '../store/ProductStore';
-import * as WeatherForecasts from '../store/WeatherForecasts';
 
 type ProductProps =
     ProductStore.ProductState
@@ -14,7 +14,7 @@ interface IState {
     products: ProductStore.Product[];
 }
 
-class ShowProduct extends React.Component<ProductProps, IState> {
+class Product extends React.Component<ProductProps, IState> {
     constructor(props: ProductProps, state: IState) {
         super(props, state);
 
@@ -51,6 +51,7 @@ class ShowProduct extends React.Component<ProductProps, IState> {
                 </tbody>
             </table>
 
+            <PhoneNumber />
             {/* <button onClick={() => { this.props.increment() }}>Increment</button> */}
         </div>;
     }
@@ -60,4 +61,4 @@ class ShowProduct extends React.Component<ProductProps, IState> {
 export default connect(
     (state: ApplicationState) => state.product, // Selects which state properties are merged into the component's props
     ProductStore.actionCreators                 // Selects which action creators are merged into the component's props
-)(ShowProduct) as typeof ShowProduct;
+)(Product) as typeof Product;
