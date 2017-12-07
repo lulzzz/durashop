@@ -21,7 +21,7 @@ namespace durashopmfa
 
             int challengeCode = await context.CallActivityAsync<int>("SendSMSChallenge",phoneNumber);
 
-            using (var timeoutCts = new CancellationTokenSource())
+            using ( var timeoutCts = new CancellationTokenSource())
             {
                 // Give the user 90 seconds to respond
                 DateTime expiration = context.CurrentUtcDateTime.AddSeconds(Convert.ToDouble(ConfigurationManager.AppSettings["smschallengetimeout-sec"])); 
