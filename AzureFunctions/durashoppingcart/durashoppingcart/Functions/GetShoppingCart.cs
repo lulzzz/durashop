@@ -19,9 +19,11 @@ namespace durashoppingcart
         {
             var eventData = await req.Content.ReadAsAsync<GetCartEventData>();
 
-            await orchestrationClient.RaiseEventAsync(eventData.CartId, CartEvents.GetItems, eventData);
+            //await orchestrationClient.RaiseEventAsync(eventData.CartId, CartEvents.GetItems, eventData);
 
-            return req.CreateResponse(HttpStatusCode.OK);
+            return orchestrationClient.CreateCheckStatusResponse(req, eventData.CartId);
+
+            //return req.CreateResponse(HttpStatusCode.OK);
         }
     }
 }

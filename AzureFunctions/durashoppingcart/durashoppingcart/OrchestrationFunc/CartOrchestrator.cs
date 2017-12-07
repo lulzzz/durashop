@@ -33,14 +33,17 @@ namespace durashoppingcart
                 cartList.Add(addItemTask.Result);
                 log.Info($"Added {addItemTask.Result.ItemName} to the Shopping Cart.");
             }
+
             else if (resultingEvent == removeItemTask)
             {
                 cartList.Remove(removeItemTask.Result);
                 log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
+
             else if (resultingEvent == getCartItemsTask)
             {
                 log.Info($"Getting Cart Items.");
+                return cartList;
             }
 
             else if (resultingEvent == notifyTask)
