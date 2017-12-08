@@ -41,11 +41,11 @@ namespace durashoppingcart
                 log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
 
-            //if (resultingEvent == notifyTask)
-            //{
-            //    await context.CallActivityAsync("NotifyUser", $"You have {cartList.Count} items in your cart");
-            //    log.Info($"Shopping Cart Notification sent.");
-            //}
+            if (resultingEvent == notifyTask)
+            {
+                await context.CallActivityAsync("NotifyUser", $"You have {cartList.Count} items in your cart");
+                log.Info($"Shopping Cart Notification sent.");
+            }
 
             if (resultingEvent == isCompletedTask && isCompletedTask.Result)
             {
