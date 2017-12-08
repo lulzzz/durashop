@@ -40,5 +40,10 @@
     "webpack": "2.5.1",
     "webpack-hot-middleware": "2.18.2",
     "webpack-merge": "4.1.0"
+  },
+  "dependencies": {
+    "@types/react-bootstrap": "^0.31.8",
+    "react-bootstrap": "^0.31.5",
+    "react-loading-spinner": "^1.0.12"
   }
 }

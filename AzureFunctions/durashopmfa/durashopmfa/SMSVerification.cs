@@ -30,7 +30,7 @@ namespace durashopmfa
                 bool authorized = false;
                 for (int retryCount = 0; retryCount <= 3; retryCount++)
                 {
-                    Task<int> challengeResponseTask = context.WaitForExternalEvent<int>("SmsChallengeResponse");
+                    Task<int> challengeResponseTask = await context.WaitForExternalEvent<Task<int>>("SmsChallengeResponse");
 
                     Task winner = await Task.WhenAny(challengeResponseTask, timeoutTask);
                     if (winner == challengeResponseTask)
