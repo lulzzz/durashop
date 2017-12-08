@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace durashoppingcart
 {
-    public class GetShoppingCart
+    public class ShoppingCartInfo
     {
-        [FunctionName("GetShoppingCart")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "Cart/Items")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClient orchestrationClient, TraceWriter log)
+        [FunctionName("ShoppingCartInfo")]
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "Cart/Info")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClient orchestrationClient, TraceWriter log)
         {
             var eventData = await req.Content.ReadAsAsync<GetCartEventData>();
 
