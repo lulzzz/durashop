@@ -8,6 +8,6 @@
 
         public static string IsCompleted => "iscompleted";
 
-        public static string GetItems => "getitems";
+        public static string SetReminder => "setreminder";
     }
 }

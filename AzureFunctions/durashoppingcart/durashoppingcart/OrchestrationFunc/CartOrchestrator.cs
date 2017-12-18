@@ -17,9 +17,10 @@ namespace durashoppingcart
             var addItemTask = context.WaitForExternalEvent<CartData>(CartEvents.AddItem);
             var removeItemTask = context.WaitForExternalEvent<CartData>(CartEvents.RemoveItem);
             var isCompletedTask = context.WaitForExternalEvent<bool>(CartEvents.IsCompleted);
+            var setCartReminder = context.WaitForExternalEvent<CartReminderData>(CartEvents.SetReminder);
 
             // Wait for external events
-            var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask);
+            var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask, setCartReminder);
 
             // Add item to cart
             if (resultingEvent == addItemTask)
@@ -35,6 +36,12 @@ namespace durashoppingcart
                 log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
 
+            // Add reminder for cart (used to notify user of waiting cart with items)
+            else if (resultingEvent == setCartReminder)
+            {
+                var provisionTask = context.CallSubOrchestratorAsync("SetCartReminderTimer", setCartReminder.Result);
+            }
+
             // Complete cart or stay running ?
             if (resultingEvent == isCompletedTask && isCompletedTask.Result)
             {
@@ -42,7 +49,7 @@ namespace durashoppingcart
             }
             else
             {
-                context.ContinueAsNew(cartList);
+                context.ContinueAsNew(cartList); // the magic line
             }
 
             return cartList;
