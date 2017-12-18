@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace durashopcheckout.OrchestrationFunc
@@ -16,31 +15,38 @@ namespace durashopcheckout.OrchestrationFunc
         [FunctionName("CheckOutOrchestrator")]
         public static async Task<HttpResponseMessage> Run([OrchestrationTrigger] DurableOrchestrationContext cartContext)
         {
-            // Fetch cart contents based on OrchestrationInstanceId in cartContext
-            string cartId = cartContext.GetInput<string>()?.Trim();
-            if (string.IsNullOrEmpty(cartId)) { return new HttpResponseMessage(HttpStatusCode.BadRequest); }
+            // Get input data
+            var cartInfo = cartContext.GetInput<CheckoutData>() ?? new CheckoutData();
 
-            // Function chaining
-            var cartList = await cartContext.CallActivityAsync<List<CartData>>("GetCartContent", cartId);
-            var payment = await cartContext.CallActivityAsync<Task<bool>>("HandlePayment", TotalSum(cartList));
-            var notif = await cartContext.CallActivityAsync<Task<bool>>("SendUserConfirmation", TotalSum(cartList));
-            var order = await cartContext.CallActivityAsync<Task<bool>>("UpdateOrderSystem", cartList);
+            if (cartInfo == null) { return new HttpResponseMessage(HttpStatusCode.BadRequest); }
+
+            // Function chaining or fan-out/fan-in ? Fråga Robin
+            var cart = await cartContext.CallActivityAsync<CartInstance>("GetCartContent", cartInfo.CartUrl);
+            var payment = await cartContext.CallActivityAsync<Task<bool>>("HandlePayment", TotalSum(cart));
+            var notif = await cartContext.CallActivityAsync<Task<bool>>("SendUserConfirmation", TotalSum(cart));
+            var order = await cartContext.CallActivityAsync<Task<bool>>("UpdateOrderSystem", cart);
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
         [FunctionName("GetCartContent")]
-        public static Task<List<CartData>> GetCartContent([ActivityTrigger] string cartId, DurableOrchestrationContext ctx, TraceWriter log)
+        public static async Task<CartInstance> GetCartContentAsync([ActivityTrigger] string cartUrl, DurableOrchestrationContext ctx, TraceWriter log)
         {
-            log.Info($"Searching for Shopping Cart with OrchestrationInstanceId '{cartId}'...");
-            Task provisionTask = ctx.CallSubOrchestratorAsync("DeviceProvisioningOrchestration", deviceId);
-            //provisioningTasks.Add(provisionTask);
-            return null;
+            CartInstance cInstance;
+            log.Info($"Searching for Shopping Cart with URL: '{cartUrl}'...");
+
+            // query the cart
+            using (var httpClient = new HttpClient())
+            {
+                var response = httpClient.GetAsync(new Uri(cartUrl)).Result;
+                cInstance = await response.Content.ReadAsAsync<CartInstance>();
+            }
+
+            return cInstance;
         }
 
-
         [FunctionName("HandlePayment")]
-        public static bool HandlePayment([ActivityTrigger] Double amount, TraceWriter log)
+        public static bool HandlePayment([ActivityTrigger] double amount, TraceWriter log)
         {
             log.Info($"Crediting total sum of '{amount}'...");
             return true;
@@ -60,9 +66,6 @@ namespace durashopcheckout.OrchestrationFunc
             return true;
         }
 
-        private static double TotalSum(List<CartData> cartList)
-        {
-            return cartList.Sum(item => item.Price);
-        }
+        static double TotalSum(CartInstance cart) => cart.input.Sum(item => item.Price);
     }
 }
