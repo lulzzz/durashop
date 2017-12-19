@@ -20,7 +20,7 @@ namespace durashoppingcart.Utils
             GridEvent<object> eventCartReminder = new GridEvent<object>
             {
                 Subject = $"CART.REMINDER",
-                EventType = $"REMINDER.ITEMSINCART",
+                EventType = $"REMINDER.ITEMSINCART.MAIL",
                 EventTime = DateTime.UtcNow,
                 Id = ci.input.FirstOrDefault().CartId,
                 Data = ci
