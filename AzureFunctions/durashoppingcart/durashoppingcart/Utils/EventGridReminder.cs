@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,8 +12,8 @@ namespace durashoppingcart.Utils
 {
     public static class EventGridReminder
     {
-        static string topicEndpoint = "https://durashop-cartreminder.westus2-1.eventgrid.azure.net/api/events";
-        static string sasKey = "oF1lQoeDI/H/AmVlDTPMqjKye5jafkO8Zga3tM8vuwM=";
+        static string topicEndpoint = ConfigurationManager.AppSettings["topicEndpoint"];
+        static string sasKey = ConfigurationManager.AppSettings["sasKey"];
 
         public static async void Add(CartInstance ci)
         {

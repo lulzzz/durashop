@@ -3,6 +3,8 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1:10002/",
     "AzureWebJobsDashboard": "UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://127.0.0.1:10002/",
-    "notifiertimeout-min": "61"
+    "notifiertimeout-min": "61",
+    "topicEndpoint": "https://durashop-cartreminder.westus2-1.eventgrid.azure.net/api/events",
+    "sasKey": "RaWRzaMBZGGggCrEIaUo2ur9WCpWc9bM4yQ8afUEiv0="
   }
 }
