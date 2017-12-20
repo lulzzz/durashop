@@ -10,6 +10,6 @@
 
         public double Price { get; set; }
 
-        public string UserEmail { get; set; }
+        public string UserId { get; set; }
     }
 }

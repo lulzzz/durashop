@@ -55,7 +55,7 @@ namespace durashopcheckout.OrchestrationFunc
         [FunctionName("SendUserConfirmation")]
         public static bool SendUserConfirmation([ActivityTrigger] List<CartData> cartDataList, TraceWriter log)
         {
-            log.Info($"Sending receipt and confirmation to '{cartDataList[0].UserEmail}'..."); // Event Grid ?!
+            log.Info($"Sending receipt and confirmation to '{cartDataList[0].UserId}'..."); // Event Grid ?!
             return true;
         }
 
