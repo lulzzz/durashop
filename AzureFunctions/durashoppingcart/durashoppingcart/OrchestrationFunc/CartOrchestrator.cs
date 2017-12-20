@@ -39,7 +39,7 @@ namespace durashoppingcart
             // Add reminder for cart (used to notify user of waiting cart with items)
             else if (resultingEvent == setCartReminder)
             {
-                var provisionTask = context.CallSubOrchestratorAsync("SetCartReminderTimer", setCartReminder.Result);
+                var provisionTask = context.CallSubOrchestratorAsync("SetCartNotificationTimer", setCartReminder.Result);
             }
 
             // Complete cart or stay running ?

@@ -31,20 +31,20 @@ namespace durashoppingcart.Utils
             await PostToEventGridAsync(eventList);
         }
 
-        private static async Task PostToEventGridAsync(List<GridEvent<object>> data)
+        static async Task PostToEventGridAsync(List<GridEvent<object>> data)
         {
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("aeg-sas-key", sasKey);
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("DuraShoppingCartReminder");
 
-                string json = JsonConvert.SerializeObject(data);
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, topicEndpoint)
+                var json = JsonConvert.SerializeObject(data);
+                var request = new HttpRequestMessage(HttpMethod.Post, topicEndpoint)
                 {
                     Content = new StringContent(json, Encoding.UTF8, "application/json")
                 };
 
-                HttpResponseMessage response = await client.SendAsync(request);
+                var response = await client.SendAsync(request);
             }
         }
     }

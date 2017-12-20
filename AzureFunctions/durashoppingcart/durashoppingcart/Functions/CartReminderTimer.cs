@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace durashoppingcart.Functions
 {
-    public class CartReminderTimer
+    public class CartReminder
     {
-        [FunctionName("SetCartReminderTimer")]
-        public static async Task SetCartReminderTimer([OrchestrationTrigger] DurableOrchestrationContext context)
+        [FunctionName("SetCartNotificationTimer")]
+        public static async Task SetCartNotificationTimer([OrchestrationTrigger] DurableOrchestrationContext context)
         {
             CartInstance cInstance;
             var remData = context.GetInput<CartReminderData>();
@@ -32,7 +32,6 @@ namespace durashoppingcart.Functions
             {
                 // Push notif to Event Grid (mail/SMS or whatever)
                 EventGridReminder.Add(cInstance);
-
             }
         }
     }

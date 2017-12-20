@@ -5,5 +5,6 @@
         public string CartId { get; set; }
         public string CartUrl { get; set; }
         public string RemindInMinutes { get; set; }
+        public string NotificationType { get; set; }
     }
 }
