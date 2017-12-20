@@ -1,10 +1,12 @@
-# DuraShop
+# DuraShop <img align="left" width="50" height="50" src="https://github.com/jedjohan/durashop/blob/master/WebFront/wwwroot/images/durashop-small.png">
 
-Brown Bag project to learn about Azure Durable Functions (kind of Micro Service oriented), currently these components are included:
-* DuraShoppingCart - Creates instance (eternal) used to keep a customers Shopping Cart
-* DuraShopMFA - Used for 2 factor authentication with codes in SMS
-* DuraShopCheckOut - Used for checkout (payment/order system/user notification). Funtion Chaining
-* SPA Front End - Emulate a simple e-shop
+Brown Bag project to learn about Azure Durable Functions. DuraShop is Micro Service oriented and contains some basic functionality for a serverless e-commerce site, currently these components are included:
+
+* **DuraShoppingCart**: Orchestrator to store a customers Shopping Cart. Implements **External Events**
+* **DuraShopMFA**: Used for 2 factor authentication with codes in SMS. Implements **Human Interaction**
+* **DuraShopCheckOut**: Orchestrator to handle Checkout (payment/order system/user notification). Implements **Function Chaining**
+* **Duracommunication**: Listens to Event Grid and sends mail/SMS. Regular Function
+* **SPA Front End**: Emulate a simple e-shop
 
 ## Getting Started
 
@@ -12,10 +14,10 @@ Clone the repository and examine code. Note that you need to edit configurations
 ### Prerequisites
 
 * Account in Twilio for testing the Multi Factor Authentication (SMS codes)
-* Microsoft Azure Storage Emulator (up and running)
+* Microsoft Azure Storage Emulator (up and running) (useful to clear in between debugging sessions with "Azurestorageemulator clear all")
 ### Installing
 
-Clone and run
+Clone and run...  nah, its a bit more complex really
 
 ## Deployment
 
