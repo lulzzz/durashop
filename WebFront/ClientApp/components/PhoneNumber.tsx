@@ -22,9 +22,9 @@ class PhoneNumber extends React.Component<Props, IState>{
             showDialog: false
         };
     }
-    componentWillReceiveProps(props: Props){
-        if(props.isLoading === false && this.props.phoneNumberVerification.id && this.props.verificationCodeAccepted === false)
-            this.setState({showDialog: true});
+    componentWillReceiveProps(props: Props) {
+        if (props.isLoading === false && this.props.phoneNumberVerification.id && this.props.verificationCodeAccepted === false)
+            this.setState({ showDialog: true });
     }
     handleVerificationCodeChange(event: any) {
         this.setState({ verificationCode: event.target.value });
@@ -33,7 +33,7 @@ class PhoneNumber extends React.Component<Props, IState>{
         this.props.phoneNumberWasChanged(event.target.value);
     }
     close() {
-        this.setState({showDialog: false});
+        this.setState({ showDialog: false });
     }
     render() {
         return <div>
@@ -58,8 +58,10 @@ class PhoneNumber extends React.Component<Props, IState>{
                     </Modal> :
                     <div className="form-group">
                         <label htmlFor="phoneNumber">Phone Number</label>
-                        <input style={{ width: "50%" }} className="form-control" type="text" id="phoneNumber" value={this.props.phoneNumber} onChange={this.handlePhoneNumberChange.bind(this)} />
-                        <Button bsStyle="primary" onClick={() => { this.props.submitPhoneNumberVerification(this.props.phoneNumber) }}>Submit</Button>
+                        <div>
+                            <input style={{ width: "20%", display: "inline-block" }} className="form-control" type="text" id="phoneNumber" value={this.props.phoneNumber} onChange={this.handlePhoneNumberChange.bind(this)} />
+                            <Button bsStyle="primary" style={{ display: "inline-block", marginLeft: 10 }} onClick={() => { this.props.submitPhoneNumberVerification(this.props.phoneNumber) }}>Submit</Button>
+                        </div>
                     </div>
             }
         </div>;

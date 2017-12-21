@@ -10,6 +10,7 @@ export interface CartState {
     cartStartResponse: OrchestrationResponse;
     cartItems: CartItem[];
     counter: number;
+    cartLoading: boolean;
 }
 
 export interface CartItem {
@@ -18,6 +19,15 @@ export interface CartItem {
     ItemId: string;
     Price: string;
     UserId: string;
+    TotalCount: number;
+}
+
+export interface GetCartItemResponse {
+    runtimeStatus: string;
+    input: CartItem[];
+    output: any[];
+    createdTime: Date;
+    lastUpdatedTime: Date;
 }
 // -----------------
 // ACTIONS - These are serializable (hence replayable) descriptions of state transitions.
@@ -26,12 +36,15 @@ export interface CartItem {
 
 interface CartStartedWasReceived { type: 'CART_STARTED_WAS_RECEIVED', cartStartResponse: OrchestrationResponse }
 interface CartStartWasSent { type: 'CART_START_WAS_SENT' }
-interface AddCartItemWasSent { type: 'ADD_CART_ITEM_WAS_SENT', counter: number }
+interface AddCartItemWasSent { type: 'ADD_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
+interface AddCartItemIsSent { type: "ADD_CART_ITEM_IS_SENT", counter: number }
+interface GetCartWasSent { type: "GET_CART_WAS_SENT", cartIsLoading: boolean }
+interface GetCartWasRetrieved { type: "GET_CART_WAS_RETRIEVED", cartItems: CartItem[] }
 // interface DecrementCountAction { type: 'DECREMENT_COUNT' }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent;
+type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | GetCartWasSent | GetCartWasRetrieved;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -65,9 +78,47 @@ export const actionCreators = {
             body: JSON.stringify(cartItem),
             mode: 'no-cors'
         })
-            .then(() => { dispatch({ type: "ADD_CART_ITEM_WAS_SENT", counter: getState().cart.counter += 1 }) });
+            .then(response => dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: getState().cart.counter += 1 }));
 
         addTask(fetchTask);
+        dispatch({ type: "ADD_CART_ITEM_WAS_SENT", cartIsLoading: true });
+    },
+    getCartItems: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        var headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+
+        let fetchTask = fetch(getState().cart.cartStartResponse.statusQueryGetUri, {
+            method: "get",
+            headers: headers
+        })
+            .then(response => response.text() as Promise<string>)
+            .then((data) => {
+                var cartItemResponse = JSON.parse(data) as GetCartItemResponse;
+                var cartItems: CartItem[] = [];
+                cartItemResponse.input.forEach((value, index) => {
+                    value.TotalCount = 1;
+
+                    if (index == 0) {
+                        cartItems.push(value);
+                    } else {
+                        var found = false;
+                        cartItems.forEach((v, i) => {
+                            if (v.ItemId == value.ItemId) {
+                                v.TotalCount += 1;
+                                found = true;
+                            }
+                        });
+
+                        if (!found) {
+                            cartItems.push(value);
+                        }
+                    }
+                });
+                dispatch({ type: "GET_CART_WAS_RETRIEVED", cartItems: cartItems });
+            });
+
+        addTask(fetchTask);
+        dispatch({ type: "GET_CART_WAS_SENT", cartIsLoading: true });
     }
     // increment: () => <IncrementCountAction>{ type: 'INCREMENT_COUNT' },
     // decrement: () => <DecrementCountAction>{ type: 'DECREMENT_COUNT' }
@@ -75,16 +126,22 @@ export const actionCreators = {
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
-const unloadedState: CartState = { cartStartResponse: { id: "", sendEventPostUri: "", statusQueryGetUri: "", terminatePostUri: "" } as OrchestrationResponse, counter: 0, cartItems: [] };
+const unloadedState: CartState = { cartStartResponse: { id: "", sendEventPostUri: "", statusQueryGetUri: "", terminatePostUri: "" } as OrchestrationResponse, counter: 0, cartItems: [], cartLoading: false };
 
 export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Action) => {
     const action = incomingAction as KnownAction;
 
     switch (action.type) {
         case "CART_STARTED_WAS_RECEIVED":
-            return { cartStartResponse: action.cartStartResponse, counter: state.counter, cartItems: state.cartItems } as CartState;
+            return { cartStartResponse: action.cartStartResponse, counter: state.counter, cartItems: state.cartItems, cartLoading: state.cartLoading } as CartState;
         case "ADD_CART_ITEM_WAS_SENT":
-            return { counter: action.counter, cartItems: state.cartItems, cartStartResponse: state.cartStartResponse } as CartState;
+            return { counter: state.counter, cartItems: state.cartItems, cartStartResponse: state.cartStartResponse, cartLoading: action.cartIsLoading } as CartState;
+        case "ADD_CART_ITEM_IS_SENT":
+            return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
+        case "GET_CART_WAS_RETRIEVED":
+            return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
+        case "GET_CART_WAS_SENT":
+            return { cartItems: state.cartItems, cartLoading: true, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         // The following line guarantees that every action in the KnownAction union has been covered by a case above
         // const exhaustiveCheck: never = action;
     }
