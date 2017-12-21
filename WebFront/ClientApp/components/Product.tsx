@@ -4,14 +4,18 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
 import * as ProductStore from '../store/ProductStore';
+import * as CartStore from '../store/Cart';
+import Cart from './Cart';
 
 type ProductProps =
     ProductStore.ProductState
     & typeof ProductStore.actionCreators
+    & typeof CartStore.actionCreators
+    & CartStore.CartState
     & RouteComponentProps<{}>;
 
 interface IState {
-    products: ProductStore.Product[];
+    products: CartStore.CartItem[];
 }
 
 class Product extends React.Component<ProductProps, IState> {
@@ -19,40 +23,52 @@ class Product extends React.Component<ProductProps, IState> {
         super(props, state);
 
         this.state = {
-            products: [{ productId: "1", productName: "Regular Function", description: "This is the 'older' Azure function" } as ProductStore.Product, { productId: "2", productName: "Durable Function", description: "This is the 'newer' and more durable Azure function" } as ProductStore.Product]
+            products: [
+                { CartId: "", ItemId: "1", ItemName:"My cool stuff", Price:"100", UserId: "123-345"} as CartStore.CartItem,
+                { CartId: "", ItemId: "2", ItemName:"My other cool stuff", Price:"200", UserId: "123-345"} as CartStore.CartItem
+            ]
         }
     }
 
-    handleRowClick(product: ProductStore.Product) {
-        debugger;
+    handleRowClick(product: CartStore.CartItem) {
+        this.props.addItem(product);
     }
 
     public render() {
         return <div>
-            <h1>Buy products</h1>
+            <div style={{ width: "100%" }}>
+                <div style={{ display: "flex" }}>
+                    <div>
+                        <h1>Buy products</h1>
 
-            <table className="table table-hover" style={{width: "50%"}}>
-                <thead>
-                    <tr>
-                        <th>Product Id</th>
-                        <th>Product Name</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.state.products.map(value =>
-                        <tr key={value.productId} onClick={() => { this.handleRowClick(value) }}>
-                            <td>{value.productId}</td>
-                            <td>{value.productName}</td>
-                            <td>{value.description}</td>
-                            <td><button type="button" className="btn btn-primary" >Add to cart</button></td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+                        <table className="table table-hover" style={{ width: "100%" }}>
+                            <thead>
+                                <tr>
+                                    <th>Product Id</th>
+                                    <th>Product Name</th>
+                                    <th>Price ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {this.state.products.map(value =>
+                                    <tr key={value.ItemId} onClick={() => { this.handleRowClick(value) }}>
+                                        <td>{value.ItemId}</td>
+                                        <td>{value.ItemName}</td>
+                                        <td>{value.Price}</td>
+                                        <td><button type="button" className="btn btn-primary" >Add to cart</button></td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <Cart counter={this.props.counter} />
+                    </div>
+                </div>
 
-            <PhoneNumber />
-            {/* <button onClick={() => { this.props.increment() }}>Increment</button> */}
+                <PhoneNumber />
+                {/* <button onClick={() => { this.props.increment() }}>Increment</button> */}
+            </div>
         </div>;
     }
 }
@@ -60,5 +76,5 @@ class Product extends React.Component<ProductProps, IState> {
 // Wire up the React component to the Redux store
 export default connect(
     (state: ApplicationState) => state.product, // Selects which state properties are merged into the component's props
-    ProductStore.actionCreators                 // Selects which action creators are merged into the component's props
+    Object.assign({}, ProductStore.actionCreators, CartStore.actionCreators)                 // Selects which action creators are merged into the component's props
 )(Product) as typeof Product;
