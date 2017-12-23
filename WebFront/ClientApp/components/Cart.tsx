@@ -81,4 +81,4 @@ class Cart extends React.Component<Props, State>{
 export default connect(
     (state: ApplicationState) => state.cart,
     CartStore.actionCreators
-)(Cart); 
+)(Cart);
