@@ -25,6 +25,7 @@ namespace durashoppingcart
             // Add item to cart
             if (resultingEvent == addItemTask)
             {
+                log.Info($"cartList IsReplaying: {context.IsReplaying}");
                 cartList.Add(addItemTask.Result);
                 log.Info($"Added {addItemTask.Result.ItemName} to the Shopping Cart.");
             }
@@ -50,6 +51,8 @@ namespace durashoppingcart
             else
             {
                 context.ContinueAsNew(cartList); // the magic line
+                log.Info($"cartList Count: {cartList.Count}");
+                log.Info($"cartList IsReplaying: {context.IsReplaying}");
             }
 
             return cartList;
