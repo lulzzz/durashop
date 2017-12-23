@@ -1,7 +1,8 @@
 import { addTask } from 'domain-task';
-import { AppThunkAction } from './';
+import { AppThunkAction, ApplicationState } from './';
 import { Action, Reducer } from 'redux';
 import OrchestrationResponse from 'ClientApp/commonmodels/OrchestrationResponse';
+import { Header } from 'react-bootstrap/lib/Modal';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -78,10 +79,40 @@ export const actionCreators = {
             body: JSON.stringify(cartItem),
             mode: 'no-cors'
         })
-            .then(response => dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: getState().cart.counter += 1 }));
+            .then((response) => {
+                setTimeout(() => {
+                    var pollingCounter: number = 0;
+                    actionCreators.doSomePolling(getState(), pollingCounter).then(() => {
+                        dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: getState().cart.counter += 1 });
+                    });
+                }, 500);
+            });
 
         addTask(fetchTask);
         dispatch({ type: "ADD_CART_ITEM_WAS_SENT", cartIsLoading: true });
+    },
+    doSomePolling(state: ApplicationState, pollingTimes: number): Promise<void> {
+        pollingTimes += 1;
+
+        return new Promise((resolve, reject) => {
+            var headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+
+            let fetchTask = fetch(state.cart.cartStartResponse.statusQueryGetUri, {
+                method: "get",
+                headers: headers
+            })
+                .then(response => response.text() as Promise<string>)
+                .then((data) => {
+                    var cartItemResponse = JSON.parse(data) as GetCartItemResponse;
+                    if (cartItemResponse.output != null) {
+                        console.log("polled: " + pollingTimes);
+                        this.doSomePolling(state, pollingTimes);
+                        return;
+                    }
+                    resolve();
+                });
+        });
     },
     getCartItems: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
@@ -135,7 +166,7 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
         case "CART_STARTED_WAS_RECEIVED":
             return { cartStartResponse: action.cartStartResponse, counter: state.counter, cartItems: state.cartItems, cartLoading: state.cartLoading } as CartState;
         case "ADD_CART_ITEM_WAS_SENT":
-            return { counter: state.counter, cartItems: state.cartItems, cartStartResponse: state.cartStartResponse, cartLoading: action.cartIsLoading } as CartState;
+            return { counter: state.counter, cartItems: state.cartItems, cartStartResponse: state.cartStartResponse, cartLoading: true } as CartState;
         case "ADD_CART_ITEM_IS_SENT":
             return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
         case "GET_CART_WAS_RETRIEVED":

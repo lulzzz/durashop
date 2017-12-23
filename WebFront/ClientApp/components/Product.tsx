@@ -37,12 +37,12 @@ class Product extends React.Component<ProductProps, IState> {
 
     public render() {
         return <div>
-            {this.props.cartLoading ? <Spinner /> :
-                <div style={{ width: "100%" }}>
-                    <div style={{ display: "flex" }}>
-                        <div>
-                            <h1>Buy products</h1>
 
+            <div style={{ width: "100%" }}>
+                <div style={{ display: "flex" }}>
+                    <div>
+                        <h1>Buy products</h1>
+                        {this.props.cartLoading ? <Spinner /> :
                             <table className="table table-hover" style={{ width: "100%" }}>
                                 <thead>
                                     <tr>
@@ -62,22 +62,20 @@ class Product extends React.Component<ProductProps, IState> {
                                     )}
                                 </tbody>
                             </table>
-                        </div>
-                        <div>
-                            <Cart />
-                        </div>
+                        }
                     </div>
-
-                    <PhoneNumber />
-                    {/* <button onClick={() => { this.props.increment() }}>Increment</button> */}
+                    <div>
+                        <Cart />
+                    </div>
                 </div>
-            }
+                <PhoneNumber />
+            </div>
         </div>;
     }
 }
 
 // Wire up the React component to the Redux store
 export default connect(
-    (state: ApplicationState) => state.product, // Selects which state properties are merged into the component's props
+    (state: ApplicationState) => state.product && state.cart, // Selects which state properties are merged into the component's props
     Object.assign(ProductStore.actionCreators, CartStore.actionCreators)                 // Selects which action creators are merged into the component's props
 )(Product) as typeof Product;
