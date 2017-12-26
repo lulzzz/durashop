@@ -37,7 +37,6 @@ class Product extends React.Component<ProductProps, IState> {
 
     public render() {
         return <div>
-
             <div style={{ width: "100%" }}>
                 <div style={{ display: "flex" }}>
                     <div>
@@ -68,7 +67,6 @@ class Product extends React.Component<ProductProps, IState> {
                         <Cart />
                     </div>
                 </div>
-                <PhoneNumber />
             </div>
         </div>;
     }
