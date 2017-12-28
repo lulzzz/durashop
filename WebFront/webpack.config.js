@@ -1,3 +1,4 @@
+const conf = dotenv.config();
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -15,6 +16,8 @@ module.exports = (env) => {
             filename: '[name].js',
             publicPath: 'dist/' // Webpack dev middleware, if enabled, handles requests for this URL prefix
         },
+        externals: {
+            Config: JSON.stringify(!isDevBuild ? require('./clientapp/config.prod.json') : require('./clientapp/config.dev.json')) },
         module: {
             rules: [
                 { test: /\.tsx?$/, include: /ClientApp/, use: 'awesome-typescript-loader?silent=true' },
