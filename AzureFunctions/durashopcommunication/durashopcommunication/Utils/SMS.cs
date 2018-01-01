@@ -9,7 +9,7 @@ namespace durashopcommunication.Utils
     {
         internal static void Send(string to, string from, string text)
         {
-            TwilioClient.Init(ConfigurationManager.AppSettings["ACCOUNT_SID"], ConfigurationManager.AppSettings["AUTH_TOKEN"]);
+            TwilioClient.Init(ConfigurationManager.AppSettings["TwilioAccountSid"], ConfigurationManager.AppSettings["TwilioAuthToken"]);
 
             var message = MessageResource.Create(
                 new PhoneNumber(to),
