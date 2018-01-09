@@ -9,7 +9,7 @@ export default class Mfa extends React.Component<RouteComponentProps<{}>, {}> {
         return (
             <div style={{ width: "100%" }}>
                 <div style={{ display: "flex" }}>
-                <B2CLogin(false, "hej") />
+                <B2CLogin  />
             </div>
         </div>);
     }

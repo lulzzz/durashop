@@ -27,7 +27,7 @@ export interface User {
 
 export interface GetUserItemResponse {
     runtimeStatus: string;
-    input: User[];
+    input: User;
     output: any[];
     createdTime: Date;
     lastUpdatedTime: Date;
@@ -41,17 +41,19 @@ interface GetUserWasRetrieved { type: "GET_USER_WAS_RETRIEVED", userItems: User[
 type KnownAction = UserStartedWasReceived | UserStartWasSent | GetUserWasSent | GetUserWasRetrieved;
 
 export const actionCreators = {
-    startUser: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    startUser: (user: User): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
         let fetchTask = fetch('http://localhost:7071/api/UserOrchestrator', {
             method: "post",
-            headers: headers
+            headers: headers,
+            body: JSON.stringify(user)
         })
             .then(response => response.json() as Promise<OrchestrationResponse>)
             .then(data => {
                 var startedUser = data as OrchestrationResponse;
                 dispatch({ type: "USER_STARTED_WAS_RECEIVED", userStartResponse: startedUser });
+                actionCreators.getUser()(dispatch, getState);
             });
 
         addTask(fetchTask);
@@ -65,28 +67,9 @@ export const actionCreators = {
             method: "get",
             headers: headers
         })
-            .then(response => response.text() as Promise<string>)
+            .then(response => response.json() as Promise<GetUserItemResponse>)
             .then((data) => {
-                var userResponse = JSON.parse(data) as GetUserItemResponse;
-                var userItems: User[] = [];
-                userResponse.input.forEach((value, index) => {
-
-                    if (index == 0) {
-                        userItems.push(value);
-                    } else {
-                        var found = false;
-                        userItems.forEach((v, i) => {
-                            if (v.UserId == value.UserId) {
-                                found = true;
-                            }
-                        });
-
-                        if (!found) {
-                            userItems.push(value);
-                        }
-                    }
-                });
-                dispatch({ type: "GET_USER_WAS_RETRIEVED", userItems: userItems });
+                dispatch({ type: "GET_USER_WAS_RETRIEVED", userItems: [data.input] });
             });
 
         addTask(fetchTask);

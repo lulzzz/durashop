@@ -1,3 +1,4 @@
+import { User } from '../store/User';
 import Spinner from './Spinner';
 import * as React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
@@ -26,12 +27,22 @@ class UserInfo extends React.Component<UserProps, IState> {
     }
 
     componentDidMount() {
-        this.props.startUser();
+        this.props.startUser({
+            "UserId" : "72ff573d0fce48a2b150089cadca824a",
+            "FirstName" : "Johan Jed",
+            "LastName" : "Eriksson",
+            "UserEmail" : "jed.johan@gmail.com",
+            "UserMobile" : "+46765269844",
+            "PostalCode" : "23442",
+            "City" : "Lomma",
+            "StreetAddress" : "Matrosgatan 6",
+            "Country" : "jed.johan@gmail.com"
+          } as User);
     }
 
     public render() {
         return <div>
-            {this.props.userLoading ? <Spinner /> :
+            {this.props.userLoading || !this.props.userItems || this.props.userItems.length <= 0 ? <Spinner /> :
                 <div style={{ width: "100%" }}>
                     <div style={{ display: "flex" }}>
                         <div>
@@ -47,11 +58,12 @@ class UserInfo extends React.Component<UserProps, IState> {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {this.state.users.map(value =>
+                                    {this.props.userItems.map(value =>
                                         <tr key={value.UserId}>
                                             <td>{value.FirstName}</td>
                                             <td>{value.LastName}</td>
                                             <td>{value.StreetAddress}</td>
+                                            <td>{value.UserEmail}</td>
                                         </tr>
                                     )}
                                 </tbody>
