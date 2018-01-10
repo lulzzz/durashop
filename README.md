@@ -9,6 +9,10 @@ Brown Bag project to learn about Azure Durable Functions. DuraShop is Micro Serv
 * **Duracommunication**: Listens to Event Grid and sends mail/SMS. Regular Function
 * **SPA Front End**: Emulate a simple e-shop
 
+**Components overview**
+
+<img src="https://raw.githubusercontent.com/jedjohan/durashop/master/Misc/DuraShop%20Overview.PNG">
+
 ## Getting Started
 
 Clone the repository and examine code. Note that you need to edit configurations in local.settings.json for each Azure Function

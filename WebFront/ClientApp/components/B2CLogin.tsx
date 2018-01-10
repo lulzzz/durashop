@@ -9,14 +9,18 @@ var applicationConfig = {
     webApi: 'https://fabrikamb2chello.azurewebsites.net/hello',
 };
 
-class B2CLogin extends React.Component<RouteComponentProps<{}>, { isLoggedIn: boolean, message: string }> {
+interface IState {
+    isLoggedIn: boolean, message: string
+}
+
+export default class B2CLogin extends React.Component<{}, IState> {
 
     clientApplication = new Msal.UserAgentApplication(applicationConfig.clientID, applicationConfig.authority, (errorDesc, token, error, tokenType) => {
         // Called after loginRedirect or acquireTokenPopup
 
         //console.log(conf.apiRoot);
         //SuperAgent.get(process.env.REACT_APP_DEV_API_URL)
-        
+
         if (tokenType == "id_token") {
             var userName = this.clientApplication.getUser().name;
             this.setState({ isLoggedIn: true });
