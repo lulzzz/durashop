@@ -8,6 +8,7 @@ type Props = CartStore.CartState & typeof CartStore.actionCreators;
 
 interface State {
     showDialog: boolean;
+    products: CartStore.CartItem[];
 }
 
 class Cart extends React.Component<Props, State>{
@@ -18,7 +19,11 @@ class Cart extends React.Component<Props, State>{
         super(props, state);
 
         this.state = {
-            showDialog: false
+            showDialog: false,
+            products:  [
+                { CartId: "", ItemId: "1", ItemName: "My cool stuff", Price: "100", UserId: "123-345" } as CartStore.CartItem,
+                { CartId: "", ItemId: "2", ItemName: "My other cool stuff", Price: "200", UserId: "123-345" } as CartStore.CartItem
+            ]
         };
     }
     componentDidMount() {
@@ -40,6 +45,10 @@ class Cart extends React.Component<Props, State>{
         this.setState({showDialog: false});
     }
 
+    handleRowClick(product: CartStore.CartItem) {
+        this.props.deleteItem(product);
+    }
+
     render() {
         return <div>
             <img onClick={this.imageClick.bind(this)} src="../images/durashop-small.png" style={{ cursor: "pointer" }} /><div style={{ display: "inline-block", fontSize: 20 }}>({this.props.counter})</div>
@@ -51,12 +60,15 @@ class Cart extends React.Component<Props, State>{
                 <Modal.Body>
                 <table className="table table-hover" style={{ width: "100%" }}>
                 <thead>
-                    <tr>
+                {this.state.products.map(value =>
+                    <tr key={value.ItemId} onClick={() => { this.handleRowClick(value) }}>
                         <th>Product Id</th>
                         <th>Product Name</th>
                         <th>Price ($)</th>
                         <th>Total items</th>
+                        <td><button type="button" className="btn btn-primary" >Remove from cart</button></td>
                     </tr>
+                    )}
                 </thead>
                 <tbody>
                     {this.props.cartItems.map((value, index) =>

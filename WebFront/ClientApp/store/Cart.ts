@@ -40,13 +40,15 @@ interface CartStartedWasReceived { type: 'CART_STARTED_WAS_RECEIVED', cartStartR
 interface CartStartWasSent { type: 'CART_START_WAS_SENT' }
 interface AddCartItemWasSent { type: 'ADD_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
 interface AddCartItemIsSent { type: "ADD_CART_ITEM_IS_SENT", counter: number }
+interface DeleteCartItemWasSent { type: 'DELETE_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
+interface DeleteCartItemIsSent { type: "DELETE_CART_ITEM_IS_SENT", counter: number }
 interface GetCartWasSent { type: "GET_CART_WAS_SENT", cartIsLoading: boolean }
 interface GetCartWasRetrieved { type: "GET_CART_WAS_RETRIEVED", cartItems: CartItem[] }
 // interface DecrementCountAction { type: 'DECREMENT_COUNT' }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | GetCartWasSent | GetCartWasRetrieved;
+type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | DeleteCartItemWasSent | DeleteCartItemIsSent | GetCartWasSent | GetCartWasRetrieved;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -91,6 +93,28 @@ export const actionCreators = {
 
         addTask(fetchTask);
         dispatch({ type: "ADD_CART_ITEM_WAS_SENT", cartIsLoading: true });
+    },
+    deleteItem: (cartItem: CartItem): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        var headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        cartItem.CartId = getState().cart.cartStartResponse.id;
+
+        let fetchTask = fetch(__API__ + 'cart/update', {
+            method: "delete",
+            headers: headers,
+            body: JSON.stringify(cartItem)
+        })
+            .then((response) => {
+                setTimeout(() => {
+                    var pollingCounter: number = 0;
+                    actionCreators.doSomePolling(getState(), pollingCounter).then(() => {
+                        dispatch({ type: "DELETE_CART_ITEM_IS_SENT", counter: getState().cart.counter -= 1 });
+                    });
+                }, 500);
+            });
+
+        addTask(fetchTask);
+        dispatch({ type: "DELETE_CART_ITEM_WAS_SENT", cartIsLoading: true });
     },
     doSomePolling(state: ApplicationState, pollingTimes: number): Promise<void> {
         pollingTimes += 1;
