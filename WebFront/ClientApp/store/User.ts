@@ -46,7 +46,7 @@ export const actionCreators = {
     startUser: (user: User): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch(__API__ + 'api/UserOrchestrator', {
+        let fetchTask = fetch(__API__ + 'user', {
             method: "post",
             headers: headers,
             body: JSON.stringify(user)

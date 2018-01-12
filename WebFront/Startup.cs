@@ -35,7 +35,7 @@ namespace WebFront
                 {
                     HotModuleReplacement = true,
                     ReactHotModuleReplacement = true,
-                    EnvironmentVariables = new Dictionary<string, string>() { { "ENV", env.EnvironmentName } }
+                    EnvironmentVariables = new Dictionary<string, string>() { { "ENV", env.EnvironmentName } } //CHANGE TO LOCALHOST FOR DEBUGGING
                 });
             }
             else

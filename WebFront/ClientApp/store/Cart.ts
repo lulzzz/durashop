@@ -56,7 +56,7 @@ export const actionCreators = {
     startCart: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch(__API__ + 'CartOrchestrator', {
+        let fetchTask = fetch(__API__ + 'cart', {
             method: "post",
             headers: headers
         })
@@ -74,7 +74,7 @@ export const actionCreators = {
         headers.append('Content-Type', 'application/json');
         cartItem.CartId = getState().cart.cartStartResponse.id;
 
-        let fetchTask = fetch(__API__ + 'Cart/Update', {
+        let fetchTask = fetch(__API__ + 'cart/update', {
             method: "post",
             headers: headers,
             body: JSON.stringify(cartItem),

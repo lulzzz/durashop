@@ -47,7 +47,7 @@ export const actionCreators = {
     submitPhoneNumberVerification: (phoneNumber: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch(__API__ + 'orchestrators/SMSPhoneVerification', {
+        let fetchTask = fetch(__API__ + 'security/2fainit/', {
             method: "post",
             // mode: "no-cors",
             headers: headers,
