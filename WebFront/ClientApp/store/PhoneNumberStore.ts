@@ -3,6 +3,8 @@ import { Action, Reducer } from 'redux';
 import { AppThunkAction } from 'ClientApp/store';
 import { addTask } from 'domain-task/main';
 
+declare const __API__: string;
+
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
 
@@ -45,8 +47,9 @@ export const actionCreators = {
     submitPhoneNumberVerification: (phoneNumber: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch('http://localhost:7071/api/orchestrators/SMSPhoneVerification', {
+        let fetchTask = fetch(__API__ + 'security/2fainit/', {
             method: "post",
+            // mode: "no-cors",
             headers: headers,
             body: JSON.stringify(phoneNumber)
         })
@@ -68,6 +71,7 @@ export const actionCreators = {
 
         let fetchTask = fetch(uri, {
             headers: headers,
+            // mode: "no-cors",
             body: verificationCode,
             method: "post"
         })

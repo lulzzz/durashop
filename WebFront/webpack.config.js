@@ -1,12 +1,13 @@
-// const conf = dotenv.config();
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const merge = require('webpack-merge');
 
-module.exports = (env) => {
-    const isDevBuild = !(env && env.prod);
+module.exports = () => {
+    const isDevBuild = process.env.ENV == "Development";
+
+    console.log("TEEEEST ENV MODE: " + process.env.ENV);
 
     // Configuration in common to both client-side and server-side bundles
     const sharedConfig = () => ({
@@ -17,14 +18,20 @@ module.exports = (env) => {
             publicPath: 'dist/' // Webpack dev middleware, if enabled, handles requests for this URL prefix
         },
         externals: {
-            Config: JSON.stringify(!isDevBuild ? require('./clientapp/config.prod.json') : require('./clientapp/config.dev.json')) },
+            // Config: !isDevBuild ? require('./clientapp/config.prod.js') : require('./clientapp/config.dev.js')
+        },
         module: {
             rules: [
                 { test: /\.tsx?$/, include: /ClientApp/, use: 'awesome-typescript-loader?silent=true' },
                 { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' }
             ]
         },
-        plugins: [new CheckerPlugin()]
+        plugins: [
+            new CheckerPlugin(),
+            new webpack.DefinePlugin({
+                __API__: !isDevBuild ? JSON.stringify(require("./ClientApp/config.prod").apiRoot) : JSON.stringify(require("./ClientApp/config.dev").apiRoot)
+            })
+        ]
     });
 
     // Configuration for client-side bundle suitable for running in browsers
@@ -50,9 +57,9 @@ module.exports = (env) => {
                 moduleFilenameTemplate: path.relative(clientBundleOutputDir, '[resourcePath]') // Point sourcemap entries to the original file locations on disk
             })
         ] : [
-            // Plugins that apply in production builds only
-            new webpack.optimize.UglifyJsPlugin()
-        ])
+                // Plugins that apply in production builds only
+                new webpack.optimize.UglifyJsPlugin()
+            ])
     });
 
     // Configuration for server-side (prerendering) bundle suitable for running in Node
