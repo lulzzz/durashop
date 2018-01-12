@@ -3,6 +3,8 @@ import { AppThunkAction } from './';
 import { Action, Reducer } from 'redux';
 import OrchestrationResponse from 'ClientApp/commonmodels/OrchestrationResponse';
 
+declare const __API__: string;
+
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
 
@@ -44,7 +46,7 @@ export const actionCreators = {
     startUser: (user: User): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch('http://localhost:7071/api/UserOrchestrator', {
+        let fetchTask = fetch(__API__ + 'api/UserOrchestrator', {
             method: "post",
             headers: headers,
             body: JSON.stringify(user)

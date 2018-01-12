@@ -24,7 +24,7 @@ export class NavMenu extends React.Component<{}, {}> {
                             <NavLink to={ '/checkout' } activeClassName='active'>
                                 <span className='glyphicon glyphicon-usd'></span> Checkout
                             </NavLink>
-                            <NavLink to={ '/2fa' } activeClassName='active'>
+                            <NavLink to={ '/phonenumber' } activeClassName='active'>
                                 <span className='glyphicon glyphicon-phone'></span> Verify Mobile
                             </NavLink>
                             <NavLink to={ '/userinfo' } activeClassName='active'>

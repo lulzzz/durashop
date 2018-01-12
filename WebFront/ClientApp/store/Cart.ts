@@ -4,6 +4,7 @@ import { Action, Reducer } from 'redux';
 import OrchestrationResponse from 'ClientApp/commonmodels/OrchestrationResponse';
 import { Header } from 'react-bootstrap/lib/Modal';
 
+declare const __API__: string;
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
 
@@ -55,7 +56,7 @@ export const actionCreators = {
     startCart: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch('http://localhost:7071/api/CartOrchestrator', {
+        let fetchTask = fetch(__API__ + 'CartOrchestrator', {
             method: "post",
             headers: headers
         })
@@ -73,7 +74,7 @@ export const actionCreators = {
         headers.append('Content-Type', 'application/json');
         cartItem.CartId = getState().cart.cartStartResponse.id;
 
-        let fetchTask = fetch('http://localhost:7071/api/Cart/Update', {
+        let fetchTask = fetch(__API__ + 'Cart/Update', {
             method: "post",
             headers: headers,
             body: JSON.stringify(cartItem),

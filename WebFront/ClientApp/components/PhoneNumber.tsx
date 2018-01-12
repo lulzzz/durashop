@@ -5,8 +5,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import * as PhoneNumberStore from '../store/PhoneNumberStore';
 import { Button } from 'react-bootstrap';
+import { RouteComponentProps } from 'react-router';
 
-type Props = PhoneNumberStore.PhoneNumberState & typeof PhoneNumberStore.actionCreators;
+type Props = PhoneNumberStore.PhoneNumberState & typeof PhoneNumberStore.actionCreators & RouteComponentProps<{}>;
 
 interface IState {
     verificationCode?: string;
@@ -38,7 +39,7 @@ class PhoneNumber extends React.Component<Props, IState>{
     render() {
         return <div>
             <h2>Add authentication</h2>
-            {this.props.isLoading ? <Spinner /> : this.props.phoneNumberVerification.id && this.props.verificationCodeAccepted ?
+            {this.props.phoneNumberVerification.id && this.props.verificationCodeAccepted ?
                 <div>
                     <h1>VERIFICATION ACCEPTED</h1>
                 </div> :
@@ -71,4 +72,4 @@ class PhoneNumber extends React.Component<Props, IState>{
 export default connect(
     (state: ApplicationState) => state.phoneNumberStore,
     PhoneNumberStore.actionCreators
-)(PhoneNumber);
+)(PhoneNumber) as typeof PhoneNumber;

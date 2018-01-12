@@ -34,7 +34,8 @@ namespace WebFront
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
                     HotModuleReplacement = true,
-                    ReactHotModuleReplacement = true
+                    ReactHotModuleReplacement = true,
+                    EnvironmentVariables = new Dictionary<string, string>() { { "ENV", env.EnvironmentName } }
                 });
             }
             else
