@@ -3,6 +3,7 @@ import { AppThunkAction, ApplicationState } from './';
 import { Action, Reducer } from 'redux';
 import OrchestrationResponse from 'ClientApp/commonmodels/OrchestrationResponse';
 import { Header } from 'react-bootstrap/lib/Modal';
+import MainService from '../services/mainservice'
 
 declare const __API__: string;
 // -----------------
@@ -37,6 +38,7 @@ export interface GetCartItemResponse {
 // Use @typeName and isActionType for type detection that works even after serialization/deserialization.
 
 interface CartStartedWasReceived { type: 'CART_STARTED_WAS_RECEIVED', cartStartResponse: OrchestrationResponse }
+interface CartStartFailed { type: "CART_START_FAILED" }
 interface CartStartWasSent { type: 'CART_START_WAS_SENT' }
 interface AddCartItemWasSent { type: 'ADD_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
 interface AddCartItemIsSent { type: "ADD_CART_ITEM_IS_SENT", counter: number }
@@ -48,27 +50,29 @@ interface GetCartWasRetrieved { type: "GET_CART_WAS_RETRIEVED", cartItems: CartI
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | DeleteCartItemWasSent | DeleteCartItemIsSent | GetCartWasSent | GetCartWasRetrieved;
+type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | DeleteCartItemWasSent | DeleteCartItemIsSent | GetCartWasSent | GetCartWasRetrieved | CartStartFailed;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 
 export const actionCreators = {
-    startCart: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        var headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        let fetchTask = fetch(__API__ + 'cart', {
-            method: "post",
-            headers: headers
-        })
+    startCart: (counter?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        MainService.fetch('cart', 'post')
             .then(response => response.json() as Promise<OrchestrationResponse>)
             .then(data => {
                 var startedCart = data as OrchestrationResponse;
                 dispatch({ type: "CART_STARTED_WAS_RECEIVED", cartStartResponse: startedCart });
+            })
+            .catch((reason) => {
+                console.log('FAILED: ' + reason);
+                if (!counter) counter = 0;
+                counter += 1;
+                if (counter && counter > 5) { dispatch({ type: "CART_START_FAILED" }); return; }
+
+                actionCreators.startCart(counter)(dispatch, getState);
             });
 
-        addTask(fetchTask);
         dispatch({ type: "CART_START_WAS_SENT" });
     },
     addItem: (cartItem: CartItem): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -198,6 +202,10 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
             return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "GET_CART_WAS_SENT":
             return { cartItems: state.cartItems, cartLoading: true, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
+        case "CART_START_WAS_SENT":
+            return { cartItems: state.cartItems, cartLoading: true, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
+        case "CART_START_FAILED":
+            return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         // The following line guarantees that every action in the KnownAction union has been covered by a case above
         // const exhaustiveCheck: never = action;
     }
