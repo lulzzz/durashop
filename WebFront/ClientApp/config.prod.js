@@ -1,3 +1,3 @@
 module.exports = {
-    "apiRoot": "http://durashop.azurewebsites.com"
+    "apiRoot": "https://durashopproxy.azurewebsites.net/"
 }
