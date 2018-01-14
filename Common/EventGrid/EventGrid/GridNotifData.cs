@@ -1,7 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace durashoppingcart.Models
+namespace DuraShop.EventGrid
 {
+    public class Input
+    {
+        public string From { get; set; }
+        public string To { get; set; }
+        public string Body { get; set; }
+        public string Subject { get; set; }
+    }
+
     public class NotifData
     {
         public string From { get; set; }

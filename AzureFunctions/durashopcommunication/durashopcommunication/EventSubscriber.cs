@@ -16,24 +16,20 @@ namespace durashopcommunication
         {
             log.Info("C# HTTP trigger processed a request from EventGrid.");
             var eventData = await req.Content.ReadAsStringAsync();
-            var events = JsonConvert.DeserializeObject<GridEvent[]>(eventData);
+            var events = JsonConvert.DeserializeObject<GridData[]>(eventData);
 
-            foreach (var item in events)
+            foreach (var notif in events)
             {
-                log.Info($"{item.Id}\r\n{item.EventType}\r\n{item.Subject}");
-                if (item.Subject == "MAIL")
+                log.Info($"{notif.Id}\r\n{notif.EventType}\r\n{notif.Subject}");
+                if (notif.Subject == "MAIL")
                 {
-                    Mail.Send(item.Data["To"], item.Data["From"], item.Data["Subject"], item.Data["Body"]);
+                    Mail.Send(notif.Data.To, notif.Data.From, notif.Data.Subject, notif.Data.Body);
                 }
-                if (item.Subject == "SMS")
+                if (notif.Subject == "SMS")
                 {
-                    Mail.Send(item.Data["To"], item.Data["From"], item.Data["Subject"], item.Data["Body"]);
+                    SMS.Send(notif.Data.To, notif.Data.From, notif.Data.Body);
                 }
-
             }
-
-
-
 
             return req.CreateResponse(HttpStatusCode.OK);
         }

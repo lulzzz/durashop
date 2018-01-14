@@ -9,7 +9,10 @@ namespace durashopcommunication.Utils
     {
         internal static async void Send(string to, string from, string subject, string body)
         {
-            var apiKey = ConfigurationManager.AppSettings["sendgrid-key"];
+            var apiKey = Environment.GetEnvironmentVariable("sendgrid-key");
+
+            if (string.IsNullOrEmpty(from)) { from = Environment.GetEnvironmentVariable("default-frommail"); };
+
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
             {

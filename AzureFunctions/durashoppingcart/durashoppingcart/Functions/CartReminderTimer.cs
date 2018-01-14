@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace durashoppingcart.Functions
 {
@@ -32,8 +33,11 @@ namespace durashoppingcart.Functions
             if ((cInstance != null) && (cInstance.input.Count > 0) && (cInstance.runtimeStatus == "Running"))
             {
                 // Push notif to Event Grid
-                DuraShop.EventGrid.Publish.Push(
-                    new CartReminderMessage { From = "team@durashop.com", To = "johan.eriksson@stratiteq.com", Body = $"Just a friendly reminder.\r\nYou have {cInstance.input.Count} items in your DuraShop Cart", Subject = "Shopping Cart items at DuraShop" },
+                var noti = new Models.NotifData { From = "team@durashop.com", To = "johan.eriksson@stratiteq.com", Body = $"Just a friendly reminder.\r\nYou have {cInstance.input.Count} items in your DuraShop Cart", Subject = "Shopping Cart items at DuraShop" };
+                var notif = JsonConvert.SerializeObject(noti);
+
+                DuraShop.EventGrid.PublishCommunication.Push(
+                    notif,
                     cInstance.input.FirstOrDefault().CartId,
                     (Conf.Subject)Enum.Parse(typeof(Conf.Subject), remData.NotificationType),
                     Conf.EventType.REMINDERITEMSINCART

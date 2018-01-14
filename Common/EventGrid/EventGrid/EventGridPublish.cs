@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,28 +14,30 @@ namespace DuraShop.EventGrid
         public enum EventType { REMINDERITEMSINCART, MFAVERIFICATION, WELCOMENEWUSER, GENERIC }
     }
 
-    public static class Publish
+    public static class PublishCommunication
     {
-        static string topicEndpoint = ConfigurationManager.AppSettings["topicEndpoint"];
-        static string sasKey = ConfigurationManager.AppSettings["sasKey"];
+        static string topicEndpoint = Environment.GetEnvironmentVariable("topicEndpoint");
+        static string sasKey = Environment.GetEnvironmentVariable("sasKey");
 
-        public static async void Push(object eventData, string id, Subject subject, EventType eventType)
+        public static async void Push(string eventData, string id, Subject subject, EventType eventType)
         {
-            List<GridEvent<object>> eventList = new List<GridEvent<object>>();
-            GridEvent<object> eventItem = new GridEvent<object>
+            var notif = JsonConvert.DeserializeObject<NotifData>(eventData);
+            List<GridData> eventList = new List<GridData>();
+
+            var eventItem = new GridData
             {
                 Subject = subject.ToString(),
-                EventType = eventType.ToString(),
+                EventType = "durashop.notification." + eventType.ToString(),
                 EventTime = DateTime.UtcNow,
                 Id = id,
-                Data = eventData
+                Data = notif
             };
 
             eventList.Add(eventItem);
             await PostToEventGridAsync(eventList);
         }
 
-        static async Task PostToEventGridAsync(List<GridEvent<object>> data)
+        static async Task PostToEventGridAsync(List<GridData> data)
         {
             using (var client = new HttpClient())
             {

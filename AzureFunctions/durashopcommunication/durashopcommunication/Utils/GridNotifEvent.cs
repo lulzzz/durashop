@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace durashoppingcart.Models
+namespace durashopcommunication
 {
-    public class NotifData
+    public class Data
     {
         public string From { get; set; }
         public string To { get; set; }
@@ -15,7 +16,7 @@ namespace durashoppingcart.Models
         public string Id { get; set; }
         public string Subject { get; set; }
         public string EventType { get; set; }
-        public NotifData Data { get; set; }
+        public Data Data { get; set; }
         public DateTime EventTime { get; set; }
     }
 }
