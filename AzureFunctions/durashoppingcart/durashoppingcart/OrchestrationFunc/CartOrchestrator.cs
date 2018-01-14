@@ -41,6 +41,7 @@ namespace durashoppingcart
             else if (resultingEvent == setCartReminder)
             {
                 var provisionTask = context.CallSubOrchestratorAsync("SetCartNotificationTimer", setCartReminder.Result);
+                log.Info($"Added timer ({setCartReminder.Result.RemindInMinutes} minutes) for Shopping Cart.");
             }
 
             // Complete cart or stay running ?

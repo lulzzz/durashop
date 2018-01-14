@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace durashopcommunication
+namespace DuraShop.EventGrid
 {
     public class GridEvent<T> where T : class
     {

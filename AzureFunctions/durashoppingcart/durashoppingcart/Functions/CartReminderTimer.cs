@@ -1,7 +1,8 @@
 ﻿using durashoppingcart.Models;
-using durashoppingcart.Utils;
+using DuraShop.EventGrid;
 using Microsoft.Azure.WebJobs;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,10 +18,10 @@ namespace durashoppingcart.Functions
             var remData = context.GetInput<CartReminderData>();
 
             // Set the timer. This means that this function will "sleep" until timespan happens
-            var notifiyTime = context.CurrentUtcDateTime.Add(TimeSpan.FromMinutes(Convert.ToDouble(remData.RemindInMinutes)));
+            var notifiyTime = context.CurrentUtcDateTime.Add(TimeSpan.FromMinutes(Convert.ToDouble(remData.RemindInMinutes))); // FromMinutes for testing purposes, probably should be FromHours or FromDays
             await context.CreateTimer(notifiyTime, CancellationToken.None);
 
-            // Query the cart
+            // Get the cart instance
             using (var httpClient = new HttpClient())
             {
                 var response = httpClient.GetAsync(new Uri(remData.CartUrl)).Result;
@@ -28,10 +29,15 @@ namespace durashoppingcart.Functions
             }
 
             // Only notify if the cart is in status "Running" AND it contains > 0 items
-            if ((cInstance.input.Count > 0) && (cInstance.runtimeStatus == "Running"))
+            if ((cInstance != null) && (cInstance.input.Count > 0) && (cInstance.runtimeStatus == "Running"))
             {
-                // Push notif to Event Grid (mail/SMS or whatever)
-                EventGridReminder.Add(cInstance);
+                // Push notif to Event Grid
+                DuraShop.EventGrid.Publish.Push(
+                    new CartReminderMessage { From = "team@durashop.com", To = "johan.eriksson@stratiteq.com", Body = $"Just a friendly reminder.\r\nYou have {cInstance.input.Count} items in your DuraShop Cart", Subject = "Shopping Cart items at DuraShop" },
+                    cInstance.input.FirstOrDefault().CartId,
+                    (Conf.Subject)Enum.Parse(typeof(Conf.Subject), remData.NotificationType),
+                    Conf.EventType.REMINDERITEMSINCART
+                    );
             }
         }
     }

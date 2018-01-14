@@ -5,7 +5,7 @@ using System.Configuration;
 
 namespace durashopcommunication.Utils
 {
-    public class Mail
+    internal class Mail
     {
         internal static async void Send(string to, string from, string subject, string body)
         {

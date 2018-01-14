@@ -5,7 +5,7 @@ using Twilio.Types;
 
 namespace durashopcommunication.Utils
 {
-    public class SMS
+    internal class SMS
     {
         internal static void Send(string to, string from, string text)
         {
