@@ -19,9 +19,8 @@ namespace DuraShop.EventGrid
         static string topicEndpoint = Environment.GetEnvironmentVariable("topicEndpoint");
         static string sasKey = Environment.GetEnvironmentVariable("sasKey");
 
-        public static async void Push(string eventData, string id, Subject subject, EventType eventType)
+        public static async void Push(NotifData notifData, string id, Subject subject, EventType eventType)
         {
-            var notif = JsonConvert.DeserializeObject<NotifData>(eventData);
             List<GridData> eventList = new List<GridData>();
 
             var eventItem = new GridData
@@ -30,7 +29,7 @@ namespace DuraShop.EventGrid
                 EventType = "durashop.notification." + eventType.ToString(),
                 EventTime = DateTime.UtcNow,
                 Id = id,
-                Data = notif
+                Data = notifData
             };
 
             eventList.Add(eventItem);

@@ -1,13 +1,13 @@
-﻿using SendGrid;
+﻿using Microsoft.Azure.WebJobs.Host;
+using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
-using System.Configuration;
 
 namespace durashopcommunication.Utils
 {
     internal class Mail
     {
-        internal static async void Send(string to, string from, string subject, string body)
+        internal static async void Send(string to, string from, string subject, string body, TraceWriter log)
         {
             var apiKey = Environment.GetEnvironmentVariable("sendgrid-key");
 
@@ -18,10 +18,13 @@ namespace durashopcommunication.Utils
             {
                 From = new EmailAddress(from, "DuraShop Team"),
                 Subject = subject,
-                PlainTextContent = body
+                PlainTextContent = body,
+                HtmlContent = $"<strong>{body}</strong>"
             };
             msg.AddTo(new EmailAddress(to, "Arne Anka"));
             var response = await client.SendEmailAsync(msg);
+
+
         }
     }
 }

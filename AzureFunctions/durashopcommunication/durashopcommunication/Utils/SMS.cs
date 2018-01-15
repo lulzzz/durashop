@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;

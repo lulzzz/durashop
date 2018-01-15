@@ -14,17 +14,18 @@ namespace durashopcommunication
         [FunctionName("Send")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
-            log.Info("C# HTTP trigger processed a request from EventGrid.");
+            log.Info("C# HTTP trigger processed a (notification) request from EventGrid.");
             var eventData = await req.Content.ReadAsStringAsync();
             var events = JsonConvert.DeserializeObject<GridData[]>(eventData);
 
             foreach (var notif in events)
             {
-                log.Info($"{notif.Id}\r\n{notif.EventType}\r\n{notif.Subject}");
+                log.Info($"{notif.Id}\r\n{notif.EventType}\r\n{notif.Subject}\r\n{notif.Data.To}");
                 if (notif.Subject == "MAIL")
                 {
-                    Mail.Send(notif.Data.To, notif.Data.From, notif.Data.Subject, notif.Data.Body);
+                    Mail.Send(notif.Data.To, notif.Data.From, notif.Data.Subject, notif.Data.Body, log);
                 }
+
                 if (notif.Subject == "SMS")
                 {
                     SMS.Send(notif.Data.To, notif.Data.From, notif.Data.Body);

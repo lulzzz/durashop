@@ -1,12 +1,11 @@
-﻿using durashoppingcart.Models;
-using DuraShop.EventGrid;
+﻿using DuraShop.EventGrid;
+using durashoppingcart.Models;
 using Microsoft.Azure.WebJobs;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace durashoppingcart.Functions
 {
@@ -32,12 +31,23 @@ namespace durashoppingcart.Functions
             // Only notify if the cart is in status "Running" AND it contains > 0 items
             if ((cInstance != null) && (cInstance.input.Count > 0) && (cInstance.runtimeStatus == "Running"))
             {
-                // Push notif to Event Grid
-                var noti = new Models.NotifData { From = "team@durashop.com", To = "johan.eriksson@stratiteq.com", Body = $"Just a friendly reminder.\r\nYou have {cInstance.input.Count} items in your DuraShop Cart", Subject = "Shopping Cart items at DuraShop" };
-                var notif = JsonConvert.SerializeObject(noti);
+                // Just some mockdata
+                string toAddress = string.Empty, fromAddress = string.Empty;
+                switch (remData.NotificationType)
+                {
+                    case "SMS":
+                        toAddress = "+46765269844";
+                        fromAddress = "+46769439183";
+                        break;
+                    case "MAIL":
+                        toAddress = "jed.johan@gmail.com";
+                        fromAddress = "noreply@durashop.com";
+                        break;
+                }
 
+                // Push notif to Event Grid
                 DuraShop.EventGrid.PublishCommunication.Push(
-                    notif,
+                    new DuraShop.EventGrid.NotifData { From = fromAddress, To = toAddress, Body = $"Just a friendly reminder. \r\nYou have {cInstance.input.Count} items in your DuraShop Cart", Subject = "Shopping Cart items at DuraShop" },
                     cInstance.input.FirstOrDefault().CartId,
                     (Conf.Subject)Enum.Parse(typeof(Conf.Subject), remData.NotificationType),
                     Conf.EventType.REMINDERITEMSINCART
