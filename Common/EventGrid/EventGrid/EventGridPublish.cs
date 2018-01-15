@@ -11,7 +11,7 @@ namespace DuraShop.EventGrid
     public static class Conf
     {
         public enum Subject { MAIL, SMS }
-        public enum EventType { REMINDERITEMSINCART, MFAVERIFICATION, WELCOMENEWUSER, GENERIC }
+        public enum EventType { REMINDERITEMSINCART, MFAVERIFICATION, WELCOMENEWUSER, ORDERCONFIRMATION, GENERIC }
     }
 
     public static class PublishCommunication

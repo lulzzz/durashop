@@ -20,11 +20,20 @@ namespace durashopcheckout.OrchestrationFunc
 
             if (cartInfo == null) { return new HttpResponseMessage(HttpStatusCode.BadRequest); }
 
-            // Function chaining or fan-out/fan-in ? Fråga Robin
-            var cart = await cartContext.CallActivityAsync<CartInstance>("GetCartContent", cartInfo.CartUrl);
-            var payment = await cartContext.CallActivityAsync<Task<bool>>("HandlePayment", TotalSum(cart));
-            var notif = await cartContext.CallActivityAsync<Task<bool>>("SendUserConfirmation", TotalSum(cart));
-            var order = await cartContext.CallActivityAsync<Task<bool>>("UpdateOrderSystem", cart);
+            var retryOptionsCartContent = new RetryOptions(firstRetryInterval: TimeSpan.FromSeconds(5), maxNumberOfAttempts: 3);
+            var retryOptionsPayment = new RetryOptions(firstRetryInterval: TimeSpan.FromSeconds(4), maxNumberOfAttempts: 2);
+
+            try
+            {
+                var cart = await cartContext.CallActivityWithRetryAsync<CartInstance>("GetCartContent", retryOptionsCartContent, cartInfo.CartUrl);
+                var payment = await cartContext.CallActivityWithRetryAsync<Task<bool>>("HandlePayment", retryOptionsPayment, TotalSum(cart));
+                var notif = await cartContext.CallActivityAsync<Task<bool>>("SendUserConfirmation", TotalSum(cart));
+                var order = await cartContext.CallActivityAsync<Task<bool>>("UpdateOrderSystem", cart);
+            }
+            catch (Exception ex)
+            {
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            }
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
@@ -48,6 +57,7 @@ namespace durashopcheckout.OrchestrationFunc
         [FunctionName("HandlePayment")]
         public static bool HandlePayment([ActivityTrigger] double amount, TraceWriter log)
         {
+            // Call some PSP blabla
             log.Info($"Crediting total sum of '{amount}'...");
             return true;
         }
@@ -55,6 +65,14 @@ namespace durashopcheckout.OrchestrationFunc
         [FunctionName("SendUserConfirmation")]
         public static bool SendUserConfirmation([ActivityTrigger] List<CartData> cartDataList, TraceWriter log)
         {
+            DuraShop.EventGrid.PublishCommunication.Push
+            (
+                new DuraShop.EventGrid.NotifData { From = "order@durashop.com", To = "johan.eriksson@stratiteq.com", Body = $"Your {cartDataList.Count} items from DuraShop are about to ship", Subject = "DuraShop Order Confirmation" },
+                cartDataList.FirstOrDefault().CartId,
+                DuraShop.EventGrid.Conf.Subject.MAIL,
+                DuraShop.EventGrid.Conf.EventType.ORDERCONFIRMATION
+            );
+
             log.Info($"Sending receipt and confirmation to '{cartDataList[0].UserId}'..."); // Event Grid ?!
             return true;
         }
@@ -62,6 +80,7 @@ namespace durashopcheckout.OrchestrationFunc
         [FunctionName("UpdateOrderSystem")]
         public static bool UpdateOrderSystem([ActivityTrigger] List<CartData> cartDataList, TraceWriter log)
         {
+            // Update some backend order system
             log.Info($"Updating Order System with '{cartDataList.Count}' products...");
             return true;
         }
