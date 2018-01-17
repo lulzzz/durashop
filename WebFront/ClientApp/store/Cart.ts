@@ -42,7 +42,7 @@ interface CartStartedWasReceived { type: 'CART_STARTED_WAS_RECEIVED', cartStartR
 interface CartStartFailed { type: "CART_START_FAILED" }
 interface CartStartWasSent { type: 'CART_START_WAS_SENT' }
 interface AddCartItemWasSent { type: 'ADD_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
-interface AddCartItemIsSent { type: "ADD_CART_ITEM_IS_SENT", counter: number }
+interface AddCartItemIsSent { type: "ADD_CART_ITEM_IS_SENT", counter: number, cartItems: CartItem[] }
 interface DeleteCartItemWasSent { type: 'DELETE_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
 interface DeleteCartItemIsSent { type: "DELETE_CART_ITEM_IS_SENT", counter: number }
 interface GetCartWasSent { type: "GET_CART_WAS_SENT", cartIsLoading: boolean }
@@ -74,13 +74,10 @@ export const actionCreators = {
     addItem: (cartItem: CartItem): AppThunkAction<KnownAction> => (dispatch, getState) => {
         cartItem.CartId = getState().cart.cartStartResponse.id;
         MainService.fetch(true, 'cart/update', "post", JSON.stringify(cartItem))
+            .then(response => response.json() as Promise<OrchestrationResponse>)
             .then((response) => {
-                setTimeout(() => {
-                    var pollingCounter: number = 0;
-                    actionCreators.doSomePolling(getState(), pollingCounter).then(() => {
-                        dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: getState().cart.counter += 1 });
-                    });
-                }, 500);
+                var cartItems = Internals.mapCartItems(response, false);
+                dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: getState().cart.counter += 1, cartItems: cartItems });
             })
             .catch(reason => {
                 ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
@@ -92,13 +89,8 @@ export const actionCreators = {
         cartItem.CartId = getState().cart.cartStartResponse.id;
         MainService.fetch(true, "cart/update", "delete", JSON.stringify(cartItem))
             .then((response) => {
-                setTimeout(() => {
-                    var pollingCounter: number = 0;
-                    actionCreators.doSomePolling(getState(), pollingCounter).then(() => {
-                        actionCreators.getCartItems()(dispatch, getState);
-                        dispatch({ type: "DELETE_CART_ITEM_IS_SENT", counter: getState().cart.counter -= 1 });
-                    });
-                }, 500);
+                actionCreators.getCartItems()(dispatch, getState);
+                dispatch({ type: "DELETE_CART_ITEM_IS_SENT", counter: getState().cart.counter -= 1 });
             })
             .catch(reason => {
                 ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
@@ -120,7 +112,7 @@ export const actionCreators = {
                 .then(response => response.text() as Promise<string>)
                 .then((data) => {
                     var cartItemResponse = JSON.parse(data) as GetCartItemResponse;
-                    cartItemResponse.runtimeStatus === "Completed" ? console.log("COMPLETED"): "";
+                    cartItemResponse.runtimeStatus === "Completed" ? console.log("COMPLETED") : "";
                     if (cartItemResponse.output != null) {
                         console.log("polled: " + pollingTimes);
                         this.doSomePolling(state, pollingTimes);
@@ -134,27 +126,7 @@ export const actionCreators = {
         MainService.fetch(false, getState().cart.cartStartResponse.statusQueryGetUri, 'get')
             .then(response => response.text() as Promise<string>)
             .then((data) => {
-                var cartItemResponse = JSON.parse(data) as GetCartItemResponse;
-                var cartItems: CartItem[] = [];
-                cartItemResponse.input.forEach((value, index) => {
-                    value.TotalCount = 1;
-
-                    if (index == 0) {
-                        cartItems.push(value);
-                    } else {
-                        var found = false;
-                        cartItems.forEach((v, i) => {
-                            if (v.ItemId == value.ItemId) {
-                                v.TotalCount += 1;
-                                found = true;
-                            }
-                        });
-
-                        if (!found) {
-                            cartItems.push(value);
-                        }
-                    }
-                });
+                var cartItems = Internals.mapCartItems(data, true);
                 dispatch({ type: "GET_CART_WAS_RETRIEVED", cartItems: cartItems });
             })
             .catch(reason => {
@@ -165,6 +137,34 @@ export const actionCreators = {
     }
     // increment: () => <IncrementCountAction>{ type: 'INCREMENT_COUNT' },
     // decrement: () => <DecrementCountAction>{ type: 'DECREMENT_COUNT' }
+};
+
+const Internals = {
+    mapCartItems(data: any, parseData: boolean): CartItem[] {
+        var cartItemResponse = parseData ? (JSON.parse(data) as GetCartItemResponse).input : data as CartItem[];
+        var cartItems: CartItem[] = [];
+        cartItemResponse.forEach((value, index) => {
+            value.TotalCount = 1;
+
+            if (index == 0) {
+                cartItems.push(value);
+            } else {
+                var found = false;
+                cartItems.forEach((v, i) => {
+                    if (v.ItemId == value.ItemId) {
+                        v.TotalCount += 1;
+                        found = true;
+                    }
+                });
+
+                if (!found) {
+                    cartItems.push(value);
+                }
+            }
+        });
+
+        return cartItems;
+    }
 };
 
 // ----------------
@@ -180,7 +180,7 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
         case "ADD_CART_ITEM_WAS_SENT":
             return { counter: state.counter, cartItems: state.cartItems, cartStartResponse: state.cartStartResponse, cartLoading: true } as CartState;
         case "ADD_CART_ITEM_IS_SENT":
-            return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
+            return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
         case "GET_CART_WAS_RETRIEVED":
             return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "GET_CART_WAS_SENT":
@@ -191,6 +191,8 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
             return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "DELETE_CART_ITEM_IS_SENT":
             return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
+        case "DELETE_CART_ITEM_WAS_SENT":
+            return { cartItems: state.cartItems, cartLoading: action.cartIsLoading, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         // The following line guarantees that every action in the KnownAction union has been covered by a case above
         // const exhaustiveCheck: never = action;
     }

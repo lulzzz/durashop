@@ -1,3 +1,4 @@
+import Spinner from './Spinner';
 import { ApplicationState } from '../store';
 import * as CartStore from '../store/Cart';
 import * as React from 'react';
@@ -20,7 +21,7 @@ class Cart extends React.Component<Props, State>{
 
         this.state = {
             showDialog: false,
-            products:  [
+            products: [
                 { CartId: "", ItemId: "1", ItemName: "My cool stuff", Price: "100", UserId: "123-345" } as CartStore.CartItem,
                 { CartId: "", ItemId: "2", ItemName: "My other cool stuff", Price: "200", UserId: "123-345" } as CartStore.CartItem
             ]
@@ -31,18 +32,18 @@ class Cart extends React.Component<Props, State>{
     }
 
     componentWillReceiveProps(props: Props) {
-        
+
     }
 
     async imageClick() {
-        await this.props.getCartItems();
+        // await this.props.getCartItems();
         this.setState({
             showDialog: true
         });
     }
 
-    close(){
-        this.setState({showDialog: false});
+    close() {
+        this.setState({ showDialog: false });
     }
 
     handleRowClick(product: CartStore.CartItem) {
@@ -58,29 +59,30 @@ class Cart extends React.Component<Props, State>{
                     <Modal.Title>Cart items</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                <table className="table table-hover" style={{ width: "100%" }}>
-                <thead>
-                {this.state.products.map(value =>
-                    <tr key={value.ItemId} onClick={() => { this.handleRowClick(value) }}>
-                        <th>Product Id</th>
-                        <th>Product Name</th>
-                        <th>Price ($)</th>
-                        <th>Total items</th>
-                        <td><button type="button" className="btn btn-primary" >Remove from cart</button></td>
-                    </tr>
-                    )}
-                </thead>
-                <tbody>
-                    {this.props.cartItems.map((value, index) =>
-                        <tr key={index}>
-                            <td>{value.ItemId}</td>
-                            <td>{value.ItemName}</td>
-                            <td>{value.Price}</td>
-                            <td>{value.TotalCount}</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>                                         
+                    {this.props.cartLoading ? <Spinner /> :
+                        <table className="table table-hover" style={{ width: "100%" }}>
+                            <thead>
+                                <tr>
+                                    <th>Product Id</th>
+                                    <th>Product Name</th>
+                                    <th>Price ($)</th>
+                                    <th>Total items</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {this.props.cartItems.map((value, index) =>
+                                    <tr key={index}>
+                                        <td>{value.ItemId}</td>
+                                        <td>{value.ItemName}</td>
+                                        <td>{value.Price}</td>
+                                        <td>{value.TotalCount}</td>
+                                        <td><button type="button" className="btn btn-primary" onClick={() => { this.handleRowClick(value) }} >Remove from cart</button></td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    }
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.close.bind(this)}>Close</Button>

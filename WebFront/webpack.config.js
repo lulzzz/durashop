@@ -5,7 +5,9 @@ const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const merge = require('webpack-merge');
 
 module.exports = () => {
-    const isDevBuild = process.env.ENV == "Development";
+    const isDevOrLocalhostBuild = process.env.ENV == "Development" || process.env.ENV == 'Localhost';
+    const isLocalHostBuild = process.env.ENV == "Localhost";
+
 
     console.log("TEEEEST ENV MODE: " + process.env.ENV);
 
@@ -29,7 +31,9 @@ module.exports = () => {
         plugins: [
             new CheckerPlugin(),
             new webpack.DefinePlugin({
-                __API__: !isDevBuild ? JSON.stringify(require("./ClientApp/config.prod").apiRoot) : JSON.stringify(require("./ClientApp/config.dev").apiRoot)
+                __API__: !isDevOrLocalhostBuild ? JSON.stringify(require("./ClientApp/config.prod").apiRoot) : 
+                isDevOrLocalhostBuild && isLocalHostBuild ? JSON.stringify(require('./ClientApp/config.localhost').apiRoot) : 
+                JSON.stringify(require("./ClientApp/config.dev").apiRoot)
             })
         ]
     });
@@ -40,7 +44,7 @@ module.exports = () => {
         entry: { 'main-client': './ClientApp/boot-client.tsx' },
         module: {
             rules: [
-                { test: /\.css$/, use: ExtractTextPlugin.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) }
+                { test: /\.css$/, use: ExtractTextPlugin.extract({ use: isDevOrLocalhostBuild ? 'css-loader' : 'css-loader?minimize' }) }
             ]
         },
         output: { path: path.join(__dirname, clientBundleOutputDir) },
@@ -50,7 +54,7 @@ module.exports = () => {
                 context: __dirname,
                 manifest: require('./wwwroot/dist/vendor-manifest.json')
             })
-        ].concat(isDevBuild ? [
+        ].concat(isDevOrLocalhostBuild ? [
             // Plugins that apply in development builds only
             new webpack.SourceMapDevToolPlugin({
                 filename: '[file].map', // Remove this line if you prefer inline source maps
