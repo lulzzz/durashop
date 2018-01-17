@@ -19,7 +19,7 @@ namespace DuraShop.EventGrid
         static string topicEndpoint = Environment.GetEnvironmentVariable("topicEndpoint");
         static string sasKey = Environment.GetEnvironmentVariable("sasKey");
 
-        public static async void Push(NotifData notifData, string id, Subject subject, EventType eventType)
+        public static async Task<HttpResponseMessage> Push(NotifData notifData, string id, Subject subject, EventType eventType)
         {
             List<GridData> eventList = new List<GridData>();
 
@@ -33,10 +33,10 @@ namespace DuraShop.EventGrid
             };
 
             eventList.Add(eventItem);
-            await PostToEventGridAsync(eventList);
+            return await PostToEventGridAsync(eventList);
         }
 
-        static async Task PostToEventGridAsync(List<GridData> data)
+        static async Task<HttpResponseMessage> PostToEventGridAsync(List<GridData> data)
         {
             using (var client = new HttpClient())
             {
@@ -49,7 +49,7 @@ namespace DuraShop.EventGrid
                     Content = new StringContent(json, Encoding.UTF8, "application/json")
                 };
 
-                var response = await client.SendAsync(request);
+                return await client.SendAsync(request);
             }
         }
     }

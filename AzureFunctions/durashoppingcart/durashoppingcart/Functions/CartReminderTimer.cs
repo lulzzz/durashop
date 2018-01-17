@@ -46,7 +46,7 @@ namespace durashoppingcart.Functions
                 }
 
                 // Push notif to Event Grid
-                DuraShop.EventGrid.PublishCommunication.Push(
+                await DuraShop.EventGrid.PublishCommunication.Push(
                     new DuraShop.EventGrid.NotifData { From = fromAddress, To = toAddress, Body = $"Just a friendly reminder. \r\nYou have {cInstance.input.Count} items in your DuraShop Cart", Subject = "Shopping Cart items at DuraShop" },
                     cInstance.input.FirstOrDefault().CartId,
                     (Conf.Subject)Enum.Parse(typeof(Conf.Subject), remData.NotificationType),
