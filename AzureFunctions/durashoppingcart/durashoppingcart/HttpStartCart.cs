@@ -1,6 +1,10 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using durashoppingcart.Models;
+using durashoppingcart.Polling;
+using durashoppingcart.Utils;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -15,6 +19,11 @@ namespace durashoppingcart
             string instanceId = await orchestrationClient.StartNewAsync(functionName, eventData);
 
             log.Info($"Started orchestration with ID = '{instanceId}'.");
+
+            var orchStatus = orchestrationClient.CreateCheckStatusResponse(req, instanceId);
+            var clientResponse = JsonConvert.DeserializeObject<OrchestrationClientResponse>(await orchStatus.Content.ReadAsStringAsync());
+            var executionDetails = Helper.GetExecutionDetails(RequestMethod.StartCart);
+            await ProvideOutput.DoIt(clientResponse, executionDetails, log);
 
             return orchestrationClient.CreateCheckStatusResponse(req, instanceId);
         }
