@@ -39,7 +39,8 @@ class UserInfo extends React.Component<UserProps, IState> {
             "Country" : "jed.johan@gmail.com"
           } as User);
     }
-
+    // Här skulle va nice med bootstrap-form för att mata in en ny user ?
+    // Men jag vet inte hur man sen visar usern när den är sparad
     public render() {
         return <div>
             {this.props.userLoading || !this.props.userItems || this.props.userItems.length <= 0 ? <Spinner /> :

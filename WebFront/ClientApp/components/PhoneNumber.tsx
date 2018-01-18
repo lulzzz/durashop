@@ -53,8 +53,8 @@ class PhoneNumber extends React.Component<Props, IState>{
                             <input type="text" id="verificationCode" onChange={this.handleVerificationCodeChange.bind(this)} />
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button onClick={this.close.bind(this)}>Close</Button>
-                            <Button bsStyle="primary" onClick={() => { this.props.submitVerificationCode(this.state.verificationCode); this.close(); }}>Save changes</Button>
+                            <Button onClick={this.close.bind(this)}>Cancel</Button>
+                            <Button bsStyle="primary" onClick={() => { this.props.submitVerificationCode(this.state.verificationCode); this.close(); }}>Verify</Button>
                         </Modal.Footer>
                     </Modal> :
                     <div className="form-group">
