@@ -66,8 +66,8 @@ namespace durashopmfa
             log.Info($"Sending verification code {challengeCode} to {phoneNumber}.");
 
             // Push notif to Event Grid
-            var response = DuraShop.EventGrid.PublishCommunication.Push(
-                new DuraShop.EventGrid.NotifData { From = "", To = phoneNumber, Body = $"DuraShop verification code is {challengeCode:0000}", Subject = "" },
+            var response = PublishCommunication.Push(
+                new NotifData { From = "", To = phoneNumber, Body = $"DuraShop verification code is {challengeCode:0000}", Subject = "" },
                 challengeCode.ToString(),
                 Conf.Subject.SMS,
                 Conf.EventType.MFAVERIFICATION
