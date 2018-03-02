@@ -62,7 +62,6 @@ namespace durashopcheckout.OrchestrationFunc
         public static Task<bool> HandlePayment([ActivityTrigger] double amount, TraceWriter log)
         {
             // Call some PSP blabla
-            Thread.Sleep(1000);
             log.Info($"Crediting total sum of '{amount}'...");
             return Task.FromResult(true);
         }
@@ -72,7 +71,7 @@ namespace durashopcheckout.OrchestrationFunc
         {
             var sendMailTask = DuraShop.EventGrid.PublishCommunication.Push
             (
-                new DuraShop.EventGrid.NotifData { From = "order@durashop.com", To = "johan.eriksson@stratiteq.com", Body = $"Your {cart.input.Count} items from DuraShop are about to ship", Subject = "DuraShop Order Confirmation" },
+                new DuraShop.EventGrid.NotifData { From = "order@durashop.com", To = "robin.nord@stratiteq.com", Body = $"Your {cart.input.Count} items from DuraShop are about to ship", Subject = "DuraShop Order Confirmation" },
                 cart.input.FirstOrDefault().CartId,
                 DuraShop.EventGrid.Conf.Subject.MAIL,
                 DuraShop.EventGrid.Conf.EventType.ORDERCONFIRMATION

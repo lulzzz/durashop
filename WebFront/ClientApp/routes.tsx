@@ -1,3 +1,4 @@
+import Checkout from './components/Checkout';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
@@ -13,4 +14,5 @@ export const routes = <Layout>
     <Route path='/product' component={ Product } />
     <Route path='/userinfo' component={ UserInfo } />
     <Route path='/phonenumber' component={ PhoneNumber } />
+    <Route path="/checkout" component={Checkout} />
 </Layout>;
