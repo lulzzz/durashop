@@ -21,6 +21,7 @@ namespace durashopcommunication
             foreach (var notif in events)
             {
                 log.Info($"{notif.Id}\r\n{notif.EventType}\r\n{notif.Subject}\r\n{notif.Data.To}");
+
                 if (notif.Subject == "MAIL")
                 {
                     Mail.Send(notif.Data.To, notif.Data.From, notif.Data.Subject, notif.Data.Body, log);

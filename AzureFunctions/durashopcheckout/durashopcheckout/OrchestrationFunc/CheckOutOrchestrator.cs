@@ -29,7 +29,6 @@ namespace durashopcheckout.OrchestrationFunc
             {
                 bool payment = await cartContext.CallActivityAsync<bool>("HandlePayment", 22);
                 var cart = await cartContext.CallActivityWithRetryAsync<CartInstance>("GetCartContent", retryOptionsCartContent, cartInfo.CartUrl);
-
                 var notif = await cartContext.CallActivityWithRetryAsync<bool>("SendUserConfirmation", retryOptionsPayment, cart);
                 if (notif == false) throw new Exception("Hoppsan");
 
