@@ -25,35 +25,33 @@ namespace durashoppingcart
             // Add item to cart
             if (resultingEvent == addItemTask)
             {
-                log.Info($"cartList IsReplaying: {context.IsReplaying}");
                 cartList.Add(addItemTask.Result);
-                log.Info($"Added {addItemTask.Result.ItemName} to the Shopping Cart.");
+                if (!context.IsReplaying) log.Info($"Added {addItemTask.Result.ItemName} to the Shopping Cart.");
             }
 
             // Remove Item from cart
             else if (resultingEvent == removeItemTask)
             {
-                cartList.Remove(cartList.Where(x => x.ItemId == removeItemTask.Result.ItemId).FirstOrDefault());
-                log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
+                cartList.Remove(cartList.Find(x => x.ItemId == removeItemTask.Result.ItemId));
+                if (!context.IsReplaying) log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
 
             // Add reminder for cart (used to notify user of waiting cart with items)
             else if (resultingEvent == setCartReminder)
             {
                 var provisionTask = context.CallSubOrchestratorAsync("SetCartNotificationTimer", setCartReminder.Result);
-                log.Info($"Added timer ({setCartReminder.Result.RemindInMinutes} minutes) for Shopping Cart.");
+                if (!context.IsReplaying) log.Info($"Added timer ({setCartReminder.Result.RemindInMinutes} minutes) for Shopping Cart.");
             }
 
             // Complete cart or stay running ?
             if (resultingEvent == isCompletedTask && isCompletedTask.Result)
             {
-                log.Info("Completed the Shopping Cart.");
+                if (!context.IsReplaying) log.Info("Completed the Shopping Cart.");
             }
             else
             {
                 context.ContinueAsNew(cartList); // the magic line
-                log.Info($"cartList Count: {cartList.Count}");
-                log.Info($"cartList IsReplaying: {context.IsReplaying}");
+                if (!context.IsReplaying) log.Info($"cartList Count: {cartList.Count}");
             }
 
             return cartList;
