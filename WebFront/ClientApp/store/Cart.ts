@@ -59,15 +59,29 @@ type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSen
 
 export const actionCreators = {
     startCart: (counter?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        MainService.fetch(true, 'cart', 'post')
-            .then(response => response.json() as Promise<OrchestrationResponse>)
-            .then(data => {
-                var startedCart = data as OrchestrationResponse;
-                dispatch({ type: "CART_STARTED_WAS_RECEIVED", cartStartResponse: startedCart });
-            })
-            .catch((reason) => {
-                ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
-            });
+        if (localStorage["myCart"]) {
+            dispatch({ type: 'CART_STARTED_WAS_RECEIVED', cartStartResponse: JSON.parse(localStorage['myCart']) as OrchestrationResponse });
+
+            if (localStorage["cartItems"]) {
+                dispatch({
+                    type: "ADD_CART_ITEM_IS_SENT",
+                    counter: Internals.getCartCount(JSON.parse(localStorage["cartItems"]) as CartItem[]),
+                    cartItems: JSON.parse(localStorage["cartItems"])
+                });
+            }
+            return;
+        }
+        if (localStorage)
+            MainService.fetch(true, 'cart', 'post')
+                .then(response => response.json() as Promise<OrchestrationResponse>)
+                .then(data => {
+                    var startedCart = data as OrchestrationResponse;
+                    localStorage["myCart"] = JSON.stringify(startedCart);
+                    dispatch({ type: "CART_STARTED_WAS_RECEIVED", cartStartResponse: startedCart });
+                })
+                .catch((reason) => {
+                    ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
+                });
 
         dispatch({ type: "CART_START_WAS_SENT" });
     },
@@ -77,7 +91,8 @@ export const actionCreators = {
             .then(response => response.json() as Promise<OrchestrationResponse>)
             .then((response) => {
                 var cartItems = Internals.mapCartItems(response, false);
-                dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: getState().cart.counter += 1, cartItems: cartItems });
+                localStorage["cartItems"] = JSON.stringify(cartItems);
+                dispatch({ type: "ADD_CART_ITEM_IS_SENT", counter: Internals.getCartCount(cartItems), cartItems: cartItems });
             })
             .catch(reason => {
                 ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
@@ -164,6 +179,15 @@ const Internals = {
         });
 
         return cartItems;
+    },
+    getCartCount(cartItems: CartItem[]): number {
+        var count = 0;
+
+        cartItems.forEach((value, index) => {
+            count += value.TotalCount;
+        });
+
+        return count;
     }
 };
 

@@ -5,11 +5,11 @@ const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const merge = require('webpack-merge');
 
 module.exports = () => {
-    const isDevOrLocalhostBuild = process.env.ENV == "Development" || process.env.ENV == 'Localhost';
-    const isLocalHostBuild = process.env.ENV == "Localhost";
+    const isDevOrLocalhostBuild = process.env.ENV.toLowerCase() == "development" || process.env.ENV.toLowerCase() == 'localhost';
+    const isLocalHostBuild = process.env.ENV.toLowerCase() == "localhost";
 
 
-    console.log("TEEEEST ENV MODE: " + process.env.ENV);
+    console.log("ENV MODE: " + process.env.ENV);
 
     // Configuration in common to both client-side and server-side bundles
     const sharedConfig = () => ({
@@ -31,9 +31,9 @@ module.exports = () => {
         plugins: [
             new CheckerPlugin(),
             new webpack.DefinePlugin({
-                __API__: !isDevOrLocalhostBuild ? JSON.stringify(require("./ClientApp/config.prod").apiRoot) : 
-                isDevOrLocalhostBuild && isLocalHostBuild ? JSON.stringify(require('./ClientApp/config.localhost').apiRoot) : 
-                JSON.stringify(require("./ClientApp/config.dev").apiRoot)
+                __API__: !isDevOrLocalhostBuild ? JSON.stringify(require("./ClientApp/config.prod").apiRoot) :
+                    isDevOrLocalhostBuild && isLocalHostBuild ? JSON.stringify(require('./ClientApp/config.localhost').apiRoot) :
+                        JSON.stringify(require("./ClientApp/config.dev").apiRoot)
             })
         ]
     });
