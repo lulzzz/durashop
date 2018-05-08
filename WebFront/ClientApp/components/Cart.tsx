@@ -13,9 +13,6 @@ interface State {
 }
 
 class Cart extends React.Component<Props, State>{
-    /**
-     *
-     */
     constructor(props: Props, state: State) {
         super(props, state);
 

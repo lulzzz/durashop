@@ -47,17 +47,21 @@ interface DeleteCartItemWasSent { type: 'DELETE_CART_ITEM_WAS_SENT', cartIsLoadi
 interface DeleteCartItemIsSent { type: "DELETE_CART_ITEM_IS_SENT", counter: number }
 interface GetCartWasSent { type: "GET_CART_WAS_SENT", cartIsLoading: boolean }
 interface GetCartWasRetrieved { type: "GET_CART_WAS_RETRIEVED", cartItems: CartItem[] }
+interface ClearItems { type: "CLEAR_ITEMS" }
 // interface DecrementCountAction { type: 'DECREMENT_COUNT' }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
-type KnownAction = CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | DeleteCartItemWasSent | DeleteCartItemIsSent | GetCartWasSent | GetCartWasRetrieved | CartStartFailed;
+type KnownAction = ClearItems | CartStartedWasReceived | CartStartWasSent | AddCartItemWasSent | AddCartItemIsSent | DeleteCartItemWasSent | DeleteCartItemIsSent | GetCartWasSent | GetCartWasRetrieved | CartStartFailed;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 
 export const actionCreators = {
+    clearCartItems: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        dispatch({ type: "CLEAR_ITEMS" });
+    },
     startCart: (counter?: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
         if (localStorage["myCart"]) {
             dispatch({ type: 'CART_STARTED_WAS_RECEIVED', cartStartResponse: JSON.parse(localStorage['myCart']) as OrchestrationResponse });
@@ -217,6 +221,8 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
             return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
         case "DELETE_CART_ITEM_WAS_SENT":
             return { cartItems: state.cartItems, cartLoading: action.cartIsLoading, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
+        case "CLEAR_ITEMS":
+            return { cartStartResponse: { id: "", sendEventPostUri: "", statusQueryGetUri: "", terminatePostUri: "" } as OrchestrationResponse, counter: 0, cartItems: [], cartLoading: false };
         // The following line guarantees that every action in the KnownAction union has been covered by a case above
         // const exhaustiveCheck: never = action;
     }
