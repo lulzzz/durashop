@@ -24,13 +24,7 @@ namespace durashoppingcart.Functions
 
             await orchestrationClient.RaiseEventAsync(data.CartId, eventName, data);
 
-            //Polling
-            var executionContext = Helper.GetExecutionDetails(req.Method == HttpMethod.Delete ? RequestMethod.DeleteItem : RequestMethod.AddItem);
-            var responseOrchestration = orchestrationClient.CreateCheckStatusResponse(req, data.CartId);
-            var clientResponse = JsonConvert.DeserializeObject<OrchestrationClientResponse>(await responseOrchestration.Content.ReadAsStringAsync());
-            var cartItems = await ProvideOutput.DoIt(clientResponse, executionContext, log);
-
-            return req.CreateResponse(HttpStatusCode.OK, cartItems);
+            return req.CreateResponse(HttpStatusCode.OK);
         }
     }
 }
