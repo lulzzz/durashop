@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventGrid", "EventGrid\EventGrid.csproj", "{7D6C1D8F-CB35-40B6-829D-D248AB247CAE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventGridSend", "EventGridSend\EventGridSend.csproj", "{0A7D7718-63AA-4A4A-B8B0-94C1AC6D9220}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7D6C1D8F-CB35-40B6-829D-D248AB247CAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D6C1D8F-CB35-40B6-829D-D248AB247CAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D6C1D8F-CB35-40B6-829D-D248AB247CAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A7D7718-63AA-4A4A-B8B0-94C1AC6D9220}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A7D7718-63AA-4A4A-B8B0-94C1AC6D9220}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A7D7718-63AA-4A4A-B8B0-94C1AC6D9220}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A7D7718-63AA-4A4A-B8B0-94C1AC6D9220}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,7 +33,6 @@ namespace duranotification
             {
                 log.Info($"Error : {e.Message}");
             }
-
         }
     }
 }

@@ -1,13 +1,8 @@
-﻿using durashoppingcart.Models;
-using durashoppingcart.Polling;
-using durashoppingcart.Utils;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
-using Newtonsoft.Json;
 using System;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace durashoppingcart

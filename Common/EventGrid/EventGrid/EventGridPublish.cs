@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using static DuraShop.EventGrid.Conf;
+using static DuraShop.EventGridSend.Conf;
 
-namespace DuraShop.EventGrid
+namespace DuraShop.EventGridSend
 {
     public static class Conf
     {
@@ -16,8 +16,8 @@ namespace DuraShop.EventGrid
 
     public static class PublishCommunication
     {
-        static string topicEndpoint = Environment.GetEnvironmentVariable("topicEndpoint");
-        static string sasKey = Environment.GetEnvironmentVariable("sasKey");
+        static readonly string topicEndpoint = Environment.GetEnvironmentVariable("topicEndpoint");
+        static readonly string sasKey = Environment.GetEnvironmentVariable("sasKey");
 
         public static async Task<HttpResponseMessage> Push(NotifData notifData, string id, Subject subject, EventType eventType)
         {
@@ -51,6 +51,27 @@ namespace DuraShop.EventGrid
 
                 return await client.SendAsync(request);
             }
+        }
+
+        private static async Task SendReminderNotificationAsync(string subject, object data)
+        {
+            var topicEndpoint = Environment.GetEnvironmentVariable("topicEndpoint");
+            var sasKey = Environment.GetEnvironmentVariable("sasKey");
+
+            var credentials = new Microsoft.Azure.EventGrid.Models.TopicCredentials(topicEndpoint);
+            var client = new Microsoft.Azure.EventGrid.EventGridClient(credentials);
+            var eventGridEvent = new Microsoft.Azure.EventGrid.Models.EventGridEvent
+            {
+                Subject = subject,
+                EventType = "REMINDERITEMSINCART",
+                EventTime = DateTime.UtcNow,
+                Id = Guid.NewGuid().ToString(),
+                Data = data,
+                DataVersion = "1.0.0",
+            };
+            var events = new List<Microsoft.Azure.EventGrid.Models.EventGridEvent>();
+            events.Add(eventGridEvent);
+            await client.PublishEventsWithHttpMessagesAsync(topicHostName, events);
         }
     }
 }

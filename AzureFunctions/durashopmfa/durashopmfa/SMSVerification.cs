@@ -1,4 +1,4 @@
-﻿using DuraShop.EventGrid;
+﻿using DuraShop.EventGridSend;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using System;
@@ -17,20 +17,20 @@ namespace durashopmfa
             if (string.IsNullOrEmpty(phoneNumber)) { throw new ArgumentNullException(nameof(phoneNumber), "A phone number input is required."); }
 
             // Send SMS with challengecode
-            var challengeCode = await context.CallActivityAsync<int>("SendSMSChallenge", phoneNumber).ConfigureAwait(false);
+            var challengeCode = await context.CallActivityAsync<int>("SendSMSChallenge", phoneNumber);
 
             using (var timeoutCts = new CancellationTokenSource())
             {
                 // Give the user 90 seconds to respond
-                var expiration = context.CurrentUtcDateTime.AddSeconds(Convert.ToDouble(ConfigurationManager.AppSettings["smschallengetimeout-sec"]));
+                var expiration = context.CurrentUtcDateTime.AddSeconds(90);
                 var timeoutTask = context.CreateTimer(expiration, timeoutCts.Token);
 
                 var authorized = false;
                 for (var retryCount = 0; retryCount <= 3; retryCount++)
                 {
-                    Task<int> challengeResponseTask = await context.WaitForExternalEvent<Task<int>>("SmsChallengeResponse");
+                    Task<int> challengeResponseTask = context.WaitForExternalEvent<int>("SmsChallengeResponse");
 
-                    var winner = await Task.WhenAny(challengeResponseTask, timeoutTask).ConfigureAwait(false);
+                    var winner = await Task.WhenAny(challengeResponseTask, timeoutTask);
                     if (winner == challengeResponseTask)
                     {
                         // A response. Compare with the challenge code.
@@ -65,14 +65,11 @@ namespace durashopmfa
 
             log.Info($"Sending verification code {challengeCode} to {phoneNumber}.");
 
-            // Push notif to Event Grid
-            var response = PublishCommunication.Push(
-                new NotifData { From = "", To = phoneNumber, Body = $"DuraShop verification code is {challengeCode:0000}", Subject = "" },
+            var task = Event.PushNotification(new NotifData { From = "", To = phoneNumber, Body = $"DuraShop verification code is {challengeCode:0000}", Subject = "" },
                 challengeCode.ToString(),
-                Conf.Subject.SMS,
-                Conf.EventType.MFAVERIFICATION
-                );
-
+                "SMS",
+                "durashop.notification.MFAVERIFICATION");
+            task.Wait();
             return challengeCode;
         }
     }
