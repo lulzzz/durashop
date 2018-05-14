@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "durashoppingcart", "durasho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "durashopuser", "durashopuser\durashopuser\durashopuser.csproj", "{D3298D0F-4AB2-427C-BF3F-8D1FD99FAD1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "duranotification", "duranotification\duranotification.csproj", "{4DCFB300-D47D-46C9-89AE-3AF33F081001}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D3298D0F-4AB2-427C-BF3F-8D1FD99FAD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3298D0F-4AB2-427C-BF3F-8D1FD99FAD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3298D0F-4AB2-427C-BF3F-8D1FD99FAD1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DCFB300-D47D-46C9-89AE-3AF33F081001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DCFB300-D47D-46C9-89AE-3AF33F081001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DCFB300-D47D-46C9-89AE-3AF33F081001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DCFB300-D47D-46C9-89AE-3AF33F081001}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

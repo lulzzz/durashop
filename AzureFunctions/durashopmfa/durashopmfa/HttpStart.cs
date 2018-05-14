@@ -14,13 +14,13 @@ namespace durashopmfa
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, methods: "post", Route = "orchestrators/{functionName}")] HttpRequestMessage req, [OrchestrationClient] DurableOrchestrationClient starter, string functionName, TraceWriter log)
         {
-            dynamic eventData = await req.Content.ReadAsAsync<object>();
-            string instanceId = await starter.StartNewAsync(functionName, eventData);
+            dynamic eventData = await req.Content.ReadAsAsync<object>().ConfigureAwait(false);
+            string instanceId = await starter.StartNewAsync(functionName, eventData).ConfigureAwait(false);
 
             log.Info($"Started orchestration with ID = '{instanceId}'.");
 
             var res = starter.CreateCheckStatusResponse(req, instanceId);
-            res.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(10));
+            res.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(7));
             return res;
         }
     }

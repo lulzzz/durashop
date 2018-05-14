@@ -3,7 +3,7 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 
-namespace durashopcommunication.Utils
+namespace duranotification
 {
     internal class Mail
     {

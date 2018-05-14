@@ -17,7 +17,7 @@ namespace durashopmfa
             if (string.IsNullOrEmpty(phoneNumber)) { throw new ArgumentNullException(nameof(phoneNumber), "A phone number input is required."); }
 
             // Send SMS with challengecode
-            var challengeCode = await context.CallActivityAsync<int>("SendSMSChallenge", phoneNumber);
+            var challengeCode = await context.CallActivityAsync<int>("SendSMSChallenge", phoneNumber).ConfigureAwait(false);
 
             using (var timeoutCts = new CancellationTokenSource())
             {
@@ -26,11 +26,11 @@ namespace durashopmfa
                 var timeoutTask = context.CreateTimer(expiration, timeoutCts.Token);
 
                 var authorized = false;
-                for (int retryCount = 0; retryCount <= 3; retryCount++)
+                for (var retryCount = 0; retryCount <= 3; retryCount++)
                 {
                     Task<int> challengeResponseTask = await context.WaitForExternalEvent<Task<int>>("SmsChallengeResponse");
 
-                    var winner = await Task.WhenAny(challengeResponseTask, timeoutTask);
+                    var winner = await Task.WhenAny(challengeResponseTask, timeoutTask).ConfigureAwait(false);
                     if (winner == challengeResponseTask)
                     {
                         // A response. Compare with the challenge code.
