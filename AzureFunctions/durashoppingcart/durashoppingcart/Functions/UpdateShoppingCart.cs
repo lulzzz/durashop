@@ -14,17 +14,34 @@ namespace durashoppingcart.Functions
     public static class UpdateShoppingCart
     {
         [FunctionName("UpdateShoppingCart")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", "delete", Route = "Cart/Update")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClient orchestrationClient, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "post", "delete", Route = "Cart/Update")]HttpRequestMessage req, [OrchestrationClient]DurableOrchestrationClientBase orchestrationClient, TraceWriter log)
         {
             var eventData = await req.Content.ReadAsStringAsync();
 
             var data = JsonConvert.DeserializeObject<CartData>(eventData);
 
             var eventName = req.Method == HttpMethod.Delete ? CartEvents.RemoveItem : CartEvents.AddItem;
-
+             
             await orchestrationClient.RaiseEventAsync(data.CartId, eventName, data);
 
-            return req.CreateResponse(HttpStatusCode.OK);
+            DurableOrchestrationStatus durableOrchestrationStatus = await orchestrationClient.GetStatusAsync(data.CartId);
+            while (durableOrchestrationStatus.CustomStatus.ToString() != "Tokyo")
+            {
+                await Task.Delay(200);
+                durableOrchestrationStatus = await orchestrationClient.GetStatusAsync(data.CartId);
+            }
+
+            return req.CreateResponse(HttpStatusCode.OK, durableOrchestrationStatus.Output);
+
+            //return httpResponseMessage;
+
+            //Polling
+            //var executionContext = Helper.GetExecutionDetails(req.Method == HttpMethod.Delete ? RequestMethod.DeleteItem : RequestMethod.AddItem);
+            //var responseOrchestration = orchestrationClient.CreateCheckStatusResponse(req, data.CartId);
+            //var clientResponse = JsonConvert.DeserializeObject<OrchestrationClientResponse>(await responseOrchestration.Content.ReadAsStringAsync());
+            //var cartItems = await ProvideOutput.DoIt(clientResponse, executionContext, log);
+
+            //return req.CreateResponse(HttpStatusCode.OK, cartItems);
         }
     }
 }

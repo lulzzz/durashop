@@ -13,7 +13,7 @@ namespace durashoppingcart
         public static async Task<List<CartData>> Run([OrchestrationTrigger]DurableOrchestrationContext context, TraceWriter log)
         {
             var cartList = context.GetInput<List<CartData>>() ?? new List<CartData>();
-
+            context.SetCustomStatus("L");
             var addItemTask = context.WaitForExternalEvent<CartData>(CartEvents.AddItem);
             var removeItemTask = context.WaitForExternalEvent<CartData>(CartEvents.RemoveItem);
             var isCompletedTask = context.WaitForExternalEvent<bool>(CartEvents.IsCompleted);
@@ -26,6 +26,7 @@ namespace durashoppingcart
             if (resultingEvent == addItemTask)
             {
                 cartList.Add(addItemTask.Result);
+                context.SetCustomStatus("Tokyo");
                 if (!context.IsReplaying) log.Info($"Added {addItemTask.Result.ItemName} to the Shopping Cart.");
             }
 
@@ -33,6 +34,7 @@ namespace durashoppingcart
             else if (resultingEvent == removeItemTask)
             {
                 cartList.Remove(cartList.Find(x => x.ItemId == removeItemTask.Result.ItemId));
+                context.SetCustomStatus("Tokyo");
                 if (!context.IsReplaying) log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
 

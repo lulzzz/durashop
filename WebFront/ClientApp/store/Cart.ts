@@ -44,9 +44,9 @@ interface CartStartWasSent { type: 'CART_START_WAS_SENT' }
 interface AddCartItemWasSent { type: 'ADD_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
 interface AddCartItemIsSent { type: "ADD_CART_ITEM_IS_SENT", counter: number, cartItems: CartItem[] }
 interface DeleteCartItemWasSent { type: 'DELETE_CART_ITEM_WAS_SENT', cartIsLoading: boolean }
-interface DeleteCartItemIsSent { type: "DELETE_CART_ITEM_IS_SENT", counter: number }
+interface DeleteCartItemIsSent { type: "DELETE_CART_ITEM_IS_SENT" }
 interface GetCartWasSent { type: "GET_CART_WAS_SENT", cartIsLoading: boolean }
-interface GetCartWasRetrieved { type: "GET_CART_WAS_RETRIEVED", cartItems: CartItem[] }
+interface GetCartWasRetrieved { type: "GET_CART_WAS_RETRIEVED", cartItems: CartItem[], counter: number }
 interface ClearItems { type: "CLEAR_ITEMS" }
 // interface DecrementCountAction { type: 'DECREMENT_COUNT' }
 
@@ -109,7 +109,7 @@ export const actionCreators = {
         MainService.fetch(true, "cart/update", "delete", JSON.stringify(cartItem))
             .then((response) => {
                 actionCreators.getCartItems()(dispatch, getState);
-                dispatch({ type: "DELETE_CART_ITEM_IS_SENT", counter: getState().cart.counter -= 1 });
+                dispatch({ type: "DELETE_CART_ITEM_IS_SENT" });
             })
             .catch(reason => {
                 ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
@@ -146,7 +146,8 @@ export const actionCreators = {
             .then(response => response.text() as Promise<string>)
             .then((data) => {
                 var cartItems = Internals.mapCartItems(data, true);
-                dispatch({ type: "GET_CART_WAS_RETRIEVED", cartItems: cartItems });
+                localStorage["cartItems"] = JSON.stringify(cartItems);
+                dispatch({ type: "GET_CART_WAS_RETRIEVED", cartItems: cartItems, counter: Internals.getCartCount(cartItems) });
             })
             .catch(reason => {
                 ErrorHandler.Handle(dispatch, { type: "CART_START_FAILED" }, reason);
@@ -160,7 +161,7 @@ export const actionCreators = {
 
 const Internals = {
     mapCartItems(data: any, parseData: boolean): CartItem[] {
-        var cartItemResponse = parseData ? (JSON.parse(data) as GetCartItemResponse).input : data as CartItem[];
+        var cartItemResponse = parseData ? (JSON.parse(data) as GetCartItemResponse).output : data as CartItem[];
         var cartItems: CartItem[] = [];
         cartItemResponse.forEach((value, index) => {
             value.TotalCount = 1;
@@ -210,7 +211,7 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
         case "ADD_CART_ITEM_IS_SENT":
             return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
         case "GET_CART_WAS_RETRIEVED":
-            return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
+            return { cartItems: action.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
         case "GET_CART_WAS_SENT":
             return { cartItems: state.cartItems, cartLoading: true, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "CART_START_WAS_SENT":
@@ -218,7 +219,7 @@ export const reducer: Reducer<CartState> = (state: CartState, incomingAction: Ac
         case "CART_START_FAILED":
             return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "DELETE_CART_ITEM_IS_SENT":
-            return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: action.counter } as CartState;
+            return { cartItems: state.cartItems, cartLoading: false, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "DELETE_CART_ITEM_WAS_SENT":
             return { cartItems: state.cartItems, cartLoading: action.cartIsLoading, cartStartResponse: state.cartStartResponse, counter: state.counter } as CartState;
         case "CLEAR_ITEMS":

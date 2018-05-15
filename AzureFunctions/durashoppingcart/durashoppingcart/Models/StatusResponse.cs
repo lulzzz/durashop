@@ -33,6 +33,8 @@ namespace durashoppingcart.Models
         /// </summary>
         public string LastUpdatedTime { get; set; }
 
+        public string CustomStatus { get; set; }
+
 
     }
 }

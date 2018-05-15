@@ -22,6 +22,7 @@ namespace durashoppingcart.Polling
                     string statusCheck;
                     try
                     {
+
                         statusCheck = await httpClient.GetStringAsync(clientResponse.StatusQueryGetUri);
                     }
                     catch (Exception e)
@@ -33,6 +34,7 @@ namespace durashoppingcart.Polling
 
                     var status = JsonConvert.DeserializeObject<StatusResponse>(statusCheck);
                     if (status.RuntimeStatus.ToLower() == "continuedasnew") continue;
+                    if (status.CustomStatus.ToLower() != "tokyo") continue;
                     if (executionDetails.ReqMethod == RequestMethod.AddItem && (status.Input == null || status.Input.Count <= 0)) continue;
 
                     result = status.Input;
