@@ -5,8 +5,8 @@ const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const merge = require('webpack-merge');
 
 module.exports = () => {
-    const isDevOrLocalhostBuild = process.env.ENV.toLowerCase() == "development" || process.env.ENV.toLowerCase() == 'localhost';
-    const isLocalHostBuild = process.env.ENV.toLowerCase() == "localhost";
+    const isDevOrLocalhostBuild = process.env.ENV == "development" || process.env.ENV == 'localhost';
+    const isLocalHostBuild = process.env.ENV == "localhost";
 
 
     console.log("ENV MODE: " + process.env.ENV);

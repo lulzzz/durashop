@@ -25,7 +25,7 @@ namespace durashoppingcart.Functions
             await orchestrationClient.RaiseEventAsync(data.CartId, eventName, data);
 
             DurableOrchestrationStatus durableOrchestrationStatus = await orchestrationClient.GetStatusAsync(data.CartId);
-            while (durableOrchestrationStatus.CustomStatus.ToString() != "Tokyo")
+            while (durableOrchestrationStatus.CustomStatus.ToString() != "readynow")
             {
                 await Task.Delay(200);
                 durableOrchestrationStatus = await orchestrationClient.GetStatusAsync(data.CartId);
