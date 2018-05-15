@@ -7,9 +7,9 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.13" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="EventGrid">
-      <HintPath>..\..\..\Common\EventGrid\EventGrid\bin\Debug\EventGrid.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\..\Common\EventGrid\EventGridSend\EventGridSend.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>

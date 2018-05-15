@@ -1,4 +1,5 @@
-﻿using durashopcheckout.Models;
+﻿using DuraShop.EventGridSend;
+using durashopcheckout.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using System;
@@ -29,7 +30,7 @@ namespace durashopcheckout.OrchestrationFunc
             {
                 var payment = await cartContext.CallActivityAsync<bool>("HandlePayment", 22);
                 var cart = await cartContext.CallActivityWithRetryAsync<CartInstance>("GetCartContent", retryOptionsCartContent, cartInfo.CartUrl);
-                var notif = await cartContext.CallActivityWithRetryAsync<bool>("SendUserConfirmation", retryOptionsPayment, cart);
+                var notif = await cartContext.CallActivityWithRetryAsync<bool>("SendReceipt", retryOptionsPayment, cart);
                 if (notif == false) throw new Exception("Hoppsan");
 
                 var order = await cartContext.CallActivityAsync<bool>("UpdateOrderSystem", cart);
@@ -40,6 +41,14 @@ namespace durashopcheckout.OrchestrationFunc
             }
 
             return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+
+        [FunctionName("HandlePayment")]
+        public static Task<bool> HandlePayment([ActivityTrigger] double amount, TraceWriter log)
+        {
+            // Call some PSP blabla
+            log.Info($"Crediting total sum of '{amount}'...");
+            return Task.FromResult(true);
         }
 
         [FunctionName("GetCartContent")]
@@ -58,28 +67,22 @@ namespace durashopcheckout.OrchestrationFunc
             return cInstance;
         }
 
-        [FunctionName("HandlePayment")]
-        public static Task<bool> HandlePayment([ActivityTrigger] double amount, TraceWriter log)
+        [FunctionName("SendReceipt")]
+        public static async Task<bool> SendUserConfirmationAsync([ActivityTrigger] CartInstance cart, TraceWriter log)
         {
-            // Call some PSP blabla
-            log.Info($"Crediting total sum of '{amount}'...");
-            return Task.FromResult(true);
-        }
-
-        [FunctionName("SendUserConfirmation")]
-        public static bool SendUserConfirmation([ActivityTrigger] CartInstance cart, TraceWriter log)
-        {
-            var sendMailTask = DuraShop.EventGrid.PublishCommunication.Push
-            (
-                new DuraShop.EventGrid.NotifData { From = "order@durashop.com", To = "robin.nord@stratiteq.com", Body = $"Your {cart.input.Count} items from DuraShop are about to ship", Subject = "DuraShop Order Confirmation" },
+            // Push receipt to Event Grid
+            await Event.PushNotification(
+                new NotifData {
+                    From = "order@durashop.com",
+                    To = "johan.eriksson@stratiteq.com",
+                    Body = $"Your {cart.input.Count} items from DuraShop are about to ship",
+                    Subject = "DuraShop Receipt"
+                },
                 cart.input.FirstOrDefault().CartId,
-                DuraShop.EventGrid.Conf.Subject.MAIL,
-                DuraShop.EventGrid.Conf.EventType.ORDERCONFIRMATION
-            );
+                "MAIL",
+                "durashop.notification.RECEIPT");
 
-            log.Info($"Sending receipt and confirmation to '{cart.input[0].UserEmail}'..."); // Event Grid ?!
-
-            if (sendMailTask.IsFaulted) return false;
+            log.Info($"Sending receipt and confirmation to '{cart.input[0].UserEmail}'...");
 
             return true;
         }
