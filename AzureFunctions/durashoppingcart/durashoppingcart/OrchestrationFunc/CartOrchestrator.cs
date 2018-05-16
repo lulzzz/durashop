@@ -1,6 +1,7 @@
 ﻿using durashoppingcart.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,22 +11,22 @@ namespace durashoppingcart
     public class CartOrchestrator
     {
         [FunctionName("CartOrchestrator")]
-        public static async Task<List<CartData>> Run([OrchestrationTrigger]DurableOrchestrationContext context, TraceWriter log)
+        public static async Task<List<CartData>> Run([OrchestrationTrigger]DurableOrchestrationContextBase context, TraceWriter log)
         {
-            var cartList = context.GetInput<List<CartData>>() ?? new List<CartData>();
-            context.SetCustomStatus("inget");
+            var cart = context.GetInput<List<CartData>>() ?? new List<CartData>();
+
             var addItemTask = context.WaitForExternalEvent<CartData>(CartEvents.AddItem);
             var removeItemTask = context.WaitForExternalEvent<CartData>(CartEvents.RemoveItem);
             var isCompletedTask = context.WaitForExternalEvent<bool>(CartEvents.IsCompleted);
             var setCartReminder = context.WaitForExternalEvent<CartReminderData>(CartEvents.SetReminder);
 
-            // Wait for external events
+            // Wait for any external event
             var resultingEvent = await Task.WhenAny(addItemTask, removeItemTask, isCompletedTask, setCartReminder);
 
             // Add item to cart
             if (resultingEvent == addItemTask)
             {
-                cartList.Add(addItemTask.Result);
+                cart.Add(addItemTask.Result);
                 context.SetCustomStatus("readynow");
                 if (!context.IsReplaying) log.Info($"Added {addItemTask.Result.ItemName} to the Shopping Cart.");
             }
@@ -33,7 +34,7 @@ namespace durashoppingcart
             // Remove Item from cart
             else if (resultingEvent == removeItemTask)
             {
-                cartList.Remove(cartList.Find(x => x.ItemId == removeItemTask.Result.ItemId));
+                cart.Remove(cart.Find(x => x.ItemId == removeItemTask.Result.ItemId));
                 context.SetCustomStatus("readynow");
                 if (!context.IsReplaying) log.Info($"Removed {removeItemTask.Result.ItemName} from the Shopping Cart.");
             }
@@ -52,11 +53,11 @@ namespace durashoppingcart
             }
             else
             {
-                context.ContinueAsNew(cartList); // the magic line
-                if (!context.IsReplaying) log.Info($"cartList Count: {cartList.Count}");
+                context.ContinueAsNew(cart); // the magic line
+                if (!context.IsReplaying) log.Info($"cartList Count: {cart.Count}");
             }
 
-            return cartList;
+            return await Task.FromResult(cart);
         }
     }
 }

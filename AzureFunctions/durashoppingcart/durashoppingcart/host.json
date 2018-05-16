@@ -1,6 +1,5 @@
 {
   "durableTask": {
-    "HubName": "DuraShopTaskHub",
     "extendedSessionsEnabled": true,
     "extendedSessionIdleTimeoutInSeconds": 30
   }
